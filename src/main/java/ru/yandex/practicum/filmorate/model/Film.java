@@ -1,24 +1,28 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
+
+import javax.validation.constraints.Size;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 
 import java.time.LocalDate;
 
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Film {
 
-    private Long id;
+    Long id;
     @NotBlank
-    private String name;
+    String name;
     @NotBlank
     @Size(max = 200)
-    private String description;
+    String description;
     @NotNull
-    private LocalDate releaseDate;
+    LocalDate releaseDate;
     @Positive
-    private int duration;
+    int duration;
 }
