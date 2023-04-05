@@ -32,5 +32,4 @@ public class User {
     String name;
     @PastOrPresent
     LocalDate birthday;
-
 }
