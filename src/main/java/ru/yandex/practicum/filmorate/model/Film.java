@@ -21,7 +21,8 @@ public class Film {
 
     final Set<Long> likes = new HashSet<>();
 
-    Long ID;
+    @Positive
+    Long id;
     @NotBlank
     String name;
     @NotBlank

@@ -22,9 +22,9 @@ public class FilmController {
         return filmService.getAllFilms();
     }
 
-    @GetMapping("{ID}")                                        // получить film по ID
-    public Film getFilmByID(@PathVariable("ID") Long ID) {
-        return filmService.getFilmByID(ID);
+    @GetMapping("{id}")                                        // получить film по ID
+    public Film getFilmByID(@PathVariable("id") Long id) {
+        return filmService.getFilmByID(id);
     }
 
     @GetMapping("/popular")

@@ -22,19 +22,19 @@ public class UserController {
     }
 
     @GetMapping("{id}")                                        // получить user по ID
-    public User getUserByID(@PathVariable("id") Long ID) {
-        return userService.getUserByID(ID);
+    public User getUserByID(@PathVariable("id") Long id) {
+        return userService.getUserByID(id);
     }
 
     @GetMapping("/{id}/friends")                                // получить список friends по ID user
-    public List<User> getFriendsUser(@PathVariable("id") Long ID) {
-        return userService.getListFriends(ID);
+    public List<User> getFriendsUser(@PathVariable("id") Long id) {
+        return userService.getListFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")               // получить список общих friends с otherUser
-    public List<User> getCommonFriendsUser(@PathVariable("id") Long ID,
+    public List<User> getCommonFriendsUser(@PathVariable("id") Long id,
                                            @PathVariable("otherId") Long otherID) {
-        return userService.getListOfCommonFriends(ID, otherID);
+        return userService.getListOfCommonFriends(id, otherID);
     }
 
     @PostMapping                                                // создать user

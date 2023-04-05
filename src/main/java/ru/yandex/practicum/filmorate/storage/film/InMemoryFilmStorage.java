@@ -19,20 +19,20 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film add(Film film) {
-        film.setID(generateId());
-        films.put(film.getID(), film);
-        log.info("Добавлен новый фильм: id={}", film.getID());
+        film.setId(generateId());
+        films.put(film.getId(), film);
+        log.info("Добавлен новый фильм: id={}", film.getId());
         return film;
     }
 
     @Override
     public Film update(Film film) {
-        if (isExistsFilm(film.getID())) {
-            films.put(film.getID(), film);
-            log.info("Данные фильма обновлены: id={}", film.getID());
+        if (isExistsFilm(film.getId())) {
+            films.put(film.getId(), film);
+            log.info("Данные фильма обновлены: id={}", film.getId());
             return film;
         } else {
-            throw new ObjectNotFoundException(String.format("Фильм не найден: id=%d", film.getID()));
+            throw new ObjectNotFoundException(String.format("Фильм не найден: id=%d", film.getId()));
         }
     }
 
@@ -43,11 +43,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> getFilmById(Long ID) {
-        if (isExistsFilm(ID)) {
-            return Optional.of(films.get(ID));
+    public Optional<Film> getFilmById(Long id) {
+        if (isExistsFilm(id)) {
+            return Optional.of(films.get(id));
         } else {
-            throw new ObjectNotFoundException(String.format("Фильм не найден: id=%d", ID));
+            throw new ObjectNotFoundException(String.format("Фильм не найден: id=%d", id));
         }
     }
 
@@ -62,8 +62,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public boolean isExistsFilm(Long ID) {
-        return films.containsKey(ID);
+    public boolean isExistsFilm(Long id) {
+        return films.containsKey(id);
     }
 
     private Long generateId() {

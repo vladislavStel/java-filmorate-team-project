@@ -35,9 +35,9 @@ public class UserService {
         return user;
     }
 
-    public User getUserByID(Long ID) {
-        return userStorage.getUserById(ID).orElseThrow(() ->
-                new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", ID)));
+    public User getUserByID(Long id) {
+        return userStorage.getUserById(id).orElseThrow(() ->
+                new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", id)));
     }
 
     public void addNewFriend(Long userID, Long friendID) {
@@ -58,12 +58,12 @@ public class UserService {
         }
     }
 
-    public List<User> getListFriends(Long ID) {
-        return userStorage.getFriends(ID);
+    public List<User> getListFriends(Long id) {
+        return userStorage.getFriends(id);
     }
 
-    public List<User> getListOfCommonFriends(Long ID, Long otherID) {
-        List<User> list = userStorage.getFriends(ID);
+    public List<User> getListOfCommonFriends(Long id, Long otherID) {
+        List<User> list = userStorage.getFriends(id);
         list.retainAll(userStorage.getFriends(otherID));
         return list;
     }

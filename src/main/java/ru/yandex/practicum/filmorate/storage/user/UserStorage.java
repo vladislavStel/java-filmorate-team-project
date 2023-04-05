@@ -14,13 +14,13 @@ public interface UserStorage {
 
     Collection<User> getAllUsers();
 
-    Optional<User> getUserById(Long ID);
+    Optional<User> getUserById(Long id);
 
     void addFriend(Long userID, Long friendID);
 
     void removeFriend(Long userID, Long friendID);
 
-    List<User> getFriends(Long ID);
+    List<User> getFriends(Long id);
 
-    boolean isExistsUser(Long ID);
+    boolean isExistsUser(Long id);
 }

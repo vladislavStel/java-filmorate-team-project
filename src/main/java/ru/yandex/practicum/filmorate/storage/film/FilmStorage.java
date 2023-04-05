@@ -13,11 +13,11 @@ public interface FilmStorage {
 
     Collection<Film> getAllFilms();
 
-    Optional<Film> getFilmById(Long ID);
+    Optional<Film> getFilmById(Long id);
 
     void addLike(Long filmID, Long userID);
 
     void removeLike(Long filmID, Long userID);
 
-    boolean isExistsFilm(Long ID);
+    boolean isExistsFilm(Long id);
 }
