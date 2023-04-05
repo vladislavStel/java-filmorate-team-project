@@ -1,14 +1,13 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.AllArgsConstructor;
-import ru.yandex.practicum.filmorate.model.User;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
-
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.List;
 import java.util.Collection;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -52,10 +51,10 @@ public class UserService {
 
     public void removeFriend(Long userID, Long friendID) {
         if (userStorage.isExistsUser(userID) && userStorage.isExistsUser(friendID)) {
-        userStorage.removeFriend(userID, friendID);
+            userStorage.removeFriend(userID, friendID);
         } else {
-        throw new ObjectNotFoundException(String.format("Пользователь id=%d или/и друг id=%d не найден",
-                userID, friendID));
+            throw new ObjectNotFoundException(String.format("Пользователь id=%d или/и друг id=%d не найден",
+                    userID, friendID));
         }
     }
 
