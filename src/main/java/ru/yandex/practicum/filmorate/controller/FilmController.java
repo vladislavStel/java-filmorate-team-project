@@ -17,12 +17,12 @@ public class FilmController {
 
     private final FilmService filmService;
 
-    @GetMapping                                                 // получаем список всех films
+    @GetMapping
     public Collection<Film> getAllFilms() {
         return filmService.getAllFilms();
     }
 
-    @GetMapping("{id}")                                        // получить film по ID
+    @GetMapping("{id}")
     public Film getFilmByID(@PathVariable("id") Long id) {
         return filmService.getFilmByID(id);
     }
@@ -30,28 +30,28 @@ public class FilmController {
     @GetMapping("/popular")
     public List<Film> getPopular(@RequestParam(defaultValue = "10", required = false) Integer count) {
         if (count < 0) {
-            throw new IncorrectParameterException("count");
+            throw new IncorrectParameterException(count);
         }
         return filmService.getPopular(count);
     }
 
-    @PostMapping                                                // создать film
+    @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
         return filmService.addFilm(film);
     }
 
-    @PutMapping                                                 // обновить данные film
+    @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
         return filmService.updateFilm(film);
     }
 
-    @PutMapping("/{id}/like/{userId}")                          // добавить like к film от userID
+    @PutMapping("/{id}/like/{userId}")
     public void addLikeByFilm(@PathVariable("id") Long filmID,
                               @PathVariable("userId") Long userID) {
         filmService.addLike(filmID, userID);
     }
 
-    @DeleteMapping("/{id}/like/{userId}")                        // удалить like у film от userID
+    @DeleteMapping("/{id}/like/{userId}")
     public void deleteLikeByFilm(@PathVariable("id") Long filmID,
                                  @PathVariable("userId") Long userID) {
         filmService.removeLike(filmID, userID);

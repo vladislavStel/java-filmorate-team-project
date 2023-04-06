@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.annotation.NameValidator;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -14,48 +15,45 @@ import java.util.List;
 public class UserService {
 
     private final UserStorage userStorage;
+    private final NameValidator nameValidator;
 
     public Collection<User> getAllUsers() {
         return userStorage.getAllUsers();
     }
 
     public User addUser(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
+        user.setName(nameValidator.validateName(user.getName(), user.getLogin()));
         userStorage.add(user);
         return user;
     }
 
     public User updateUser(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
+        user.setName(nameValidator.validateName(user.getName(), user.getLogin()));
         userStorage.update(user);
         return user;
     }
 
     public User getUserByID(Long id) {
-        return userStorage.getUserById(id).orElseThrow(() ->
-                new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", id)));
+        if (userStorage.isExistsUser(id)) {
+            throw new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", id));
+        }
+        return userStorage.getUserById(id);
     }
 
     public void addNewFriend(Long userID, Long friendID) {
-        if (userStorage.isExistsUser(userID) && userStorage.isExistsUser(friendID)) {
-            userStorage.addFriend(userID, friendID);
-        } else {
+        if (userStorage.isExistsUser(userID) || userStorage.isExistsUser(friendID)) {
             throw new ObjectNotFoundException(String.format("Пользователь id=%d или/и друг id=%d не найден",
                     userID, friendID));
         }
+        userStorage.addFriend(userID, friendID);
     }
 
     public void removeFriend(Long userID, Long friendID) {
-        if (userStorage.isExistsUser(userID) && userStorage.isExistsUser(friendID)) {
-            userStorage.removeFriend(userID, friendID);
-        } else {
+        if (userStorage.isExistsUser(userID) || userStorage.isExistsUser(friendID)) {
             throw new ObjectNotFoundException(String.format("Пользователь id=%d или/и друг id=%d не найден",
                     userID, friendID));
         }
+        userStorage.removeFriend(userID, friendID);
     }
 
     public List<User> getListFriends(Long id) {

@@ -16,44 +16,44 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping                                                 // получаем список всех users
+    @GetMapping
     public Collection<User> getAllUsers() {
         return userService.getAllUsers();
     }
 
-    @GetMapping("{id}")                                        // получить user по ID
+    @GetMapping("{id}")
     public User getUserByID(@PathVariable("id") Long id) {
         return userService.getUserByID(id);
     }
 
-    @GetMapping("/{id}/friends")                                // получить список friends по ID user
+    @GetMapping("/{id}/friends")
     public List<User> getFriendsUser(@PathVariable("id") Long id) {
         return userService.getListFriends(id);
     }
 
-    @GetMapping("/{id}/friends/common/{otherId}")               // получить список общих friends с otherUser
+    @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriendsUser(@PathVariable("id") Long id,
                                            @PathVariable("otherId") Long otherID) {
         return userService.getListOfCommonFriends(id, otherID);
     }
 
-    @PostMapping                                                // создать user
+    @PostMapping
     public User addUser(@Valid @RequestBody User user) {
         return userService.addUser(user);
     }
 
-    @PutMapping                                                 // обновить данные user
+    @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
         return userService.updateUser(user);
     }
 
-    @PutMapping("/{id}/friends/{friendId}")                     // добавить друга friendID к user
+    @PutMapping("/{id}/friends/{friendId}")
     public void addNewFriend(@PathVariable("id") Long userID,
                              @PathVariable("friendId") Long friendID) {
         userService.addNewFriend(userID, friendID);
     }
 
-    @DeleteMapping("/{id}/friends/{friendId}")                  // удалить друга friendID у user
+    @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable("id") Long userID,
                              @PathVariable("friendId") Long friendID) {
         userService.removeFriend(userID, friendID);

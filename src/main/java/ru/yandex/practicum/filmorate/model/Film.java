@@ -19,18 +19,22 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Film {
 
-    final Set<Long> likes = new HashSet<>();
-
     @Positive
     Long id;
+
     @NotBlank
     String name;
+
     @NotBlank
     @Size(max = 200)
     String description;
+
     @NotNull
     @IsAfterDate
     LocalDate releaseDate;
+
     @Positive
     int duration;
+
+    final Set<Long> likes = new HashSet<>();
 }

@@ -34,33 +34,30 @@ public class FilmService {
     }
 
     public Film getFilmByID(Long id) {
-        return filmStorage.getFilmById(id).orElseThrow(() ->
-                new ObjectNotFoundException(String.format("Фильм не найден: id=%d", id)));
+        if (filmStorage.isExistsFilm(id)) {
+            throw new ObjectNotFoundException(String.format("Фильм не найден: id=%d", id));
+        }
+        return filmStorage.getFilmById(id);
     }
 
     public void addLike(Long filmID, Long userID) {
-        if (filmStorage.isExistsFilm(filmID) && userStorage.isExistsUser(userID)) {
-            filmStorage.addLike(filmID, userID);
-        } else {
+        if (filmStorage.isExistsFilm(filmID) || userStorage.isExistsUser(userID)) {
             throw new ObjectNotFoundException(String.format("Фильм id=%d или/и пользователь id=%d не найден",
                     filmID, userID));
         }
+        filmStorage.addLike(filmID, userID);
     }
 
     public void removeLike(Long filmID, Long userID) {
-        if (filmStorage.isExistsFilm(filmID) && userStorage.isExistsUser(userID)) {
-            filmStorage.removeLike(filmID, userID);
-        } else {
+        if (filmStorage.isExistsFilm(filmID) || userStorage.isExistsUser(userID)) {
             throw new ObjectNotFoundException(String.format("Фильм id=%d или/и пользователь id=%d не найден",
                     filmID, userID));
         }
+        filmStorage.removeLike(filmID, userID);
     }
 
     public List<Film> getPopular(Integer count) {
         List<Film> popularFilms = new ArrayList<>(filmStorage.getAllFilms());
-        if (count > popularFilms.size()) {
-            count = popularFilms.size();
-        }
         return popularFilms.stream()
                 .sorted((o1, o2) -> Integer.compare(o2.getLikes().size(), o1.getLikes().size()))
                 .limit(count)

@@ -6,7 +6,10 @@ import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,12 +30,11 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User update(User user) {
         if (isExistsUser(user.getId())) {
-            users.put(user.getId(), user);
-            log.info("Данные пользователя обновлены: id={}", user.getId());
-            return user;
-        } else {
             throw new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", user.getId()));
         }
+        users.put(user.getId(), user);
+        log.info("Данные пользователя обновлены: id={}", user.getId());
+        return user;
     }
 
     @Override
@@ -42,46 +44,39 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User> getUserById(Long id) {
-        if (isExistsUser(id)) {
-            return Optional.of(users.get(id));
-        } else {
-            throw new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", id));
-        }
+    public User getUserById(Long id) {
+        return users.get(id);
     }
 
     @Override
     public void addFriend(Long userID, Long friendID) {
-        if (!userID.equals(friendID)) {
-            users.get(userID).getFriends().add(friendID);
-            users.get(friendID).getFriends().add(userID);
-        } else {
-            throw new ValidationException("Ошибка валидации");
+        if (userID.equals(friendID)) {
+            throw new ValidationException("Ошибка валидации. Нельзя добавить себя в друзья");
         }
+        users.get(userID).getFriends().add(friendID);
+        users.get(friendID).getFriends().add(userID);
     }
 
     @Override
     public void removeFriend(Long userID, Long friendID) {
-        if (!userID.equals(friendID)) {
-            users.get(userID).getFriends().remove(friendID);
-            users.get(friendID).getFriends().remove(userID);
-        } else {
-            throw new ValidationException("Ошибка валидации");
+        if (userID.equals(friendID)) {
+            throw new ValidationException("Ошибка валидации. Нельзя удалить себя из друзей");
         }
+        users.get(userID).getFriends().remove(friendID);
+        users.get(friendID).getFriends().remove(userID);
     }
 
     @Override
     public List<User> getFriends(Long id) {
         if (isExistsUser(id)) {
-            return users.get(id).getFriends().stream().map(users::get).collect(Collectors.toList());
-        } else {
             throw new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", id));
         }
+        return users.get(id).getFriends().stream().map(users::get).collect(Collectors.toList());
     }
 
     @Override
     public boolean isExistsUser(Long id) {
-        return users.containsKey(id);
+        return !users.containsKey(id);
     }
 
     private Long generateID() {

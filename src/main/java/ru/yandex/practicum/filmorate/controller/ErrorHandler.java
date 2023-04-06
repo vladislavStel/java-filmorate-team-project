@@ -12,60 +12,61 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
 import javax.validation.ConstraintViolationException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
 
+    @ExceptionHandler(ObjectNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleObjectNotFoundExceptions(Exception e) {
+        log.error(e.getMessage(), e);
+        return new ErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIncorrectParameterException(final IncorrectParameterException e) {
         log.error(e.getMessage(), e);
-        return new ErrorResponse(
-                String.format("Неверное значение поля \"%s\".", e.getParameter())
+        return new ErrorResponse(HttpStatus.BAD_REQUEST, "Неверное значение поля - count", e.getCount()
         );
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationException(final ValidationException e) {
+    public ErrorResponse handleValidationExceptions(Exception e) {
         log.error(e.getMessage(), e);
-        return new ErrorResponse(e.getMessage());
+        return new ErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidation(final MethodArgumentNotValidException e) {
+    public List<ErrorResponse> handleMethodArgumentNotValidExceptions(MethodArgumentNotValidException e) {
         log.error(e.getMessage(), e);
-        return new ErrorResponse(
-                "Произошла ошибка валидации."
-        );
+        return e.getBindingResult().getFieldErrors().stream()
+                .map(error -> new ErrorResponse(HttpStatus.BAD_REQUEST,
+                        error.getField(),
+                        error.getDefaultMessage()))
+                .collect(Collectors.toList());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidation(final ConstraintViolationException e) {
+    public List<ErrorResponse> handleConstraintViolationExceptions(ConstraintViolationException e) {
         log.error(e.getMessage(), e);
-        return new ErrorResponse(
-                "Произошла ошибка валидации."
-        );
+        return e.getConstraintViolations().stream()
+                .map(violation -> new ErrorResponse(HttpStatus.BAD_REQUEST,
+                        violation.getPropertyPath().toString(),
+                        violation.getMessage()))
+                .collect(Collectors.toList());
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleObjectNotFoundException(final ObjectNotFoundException e) {
-        log.error(e.getMessage(), e);
-        return new ErrorResponse(
-                "Объект не найден."
-        );
-    }
-
-    @ExceptionHandler
+    @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleThrowable(final Throwable e) {
+    public ErrorResponse handleThrowable(Exception e) {
         log.error(e.getMessage(), e);
-        return new ErrorResponse(
-                "Произошла непредвиденная ошибка."
-        );
+        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 }
