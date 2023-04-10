@@ -1,62 +1,61 @@
 package ru.yandex.practicum.filmorate.controller;
 
-
-import lombok.extern.slf4j.Slf4j;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 
-@Slf4j
 @RestController
+@AllArgsConstructor
 @RequestMapping("/users")
 public class UserController {
 
-    private final IdCounter idCounter = new IdCounter();
-    private final Map<Long, User> users = new HashMap<>();
+    private final UserService userService;
 
     @GetMapping
-    public List<User> findAllUsers() {
-        log.info("Количество зарегистрированных пользователей: {}", users.size());
-        return new ArrayList<>(users.values());
+    public Collection<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    @GetMapping("{id}")
+    public User getUserByID(@PathVariable("id") Long id) {
+        return userService.getUserByID(id);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getFriendsUser(@PathVariable("id") Long id) {
+        return userService.getListFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriendsUser(@PathVariable("id") Long id,
+                                           @PathVariable("otherId") Long otherID) {
+        return userService.getListOfCommonFriends(id, otherID);
     }
 
     @PostMapping
-    public User createUser(@Valid @RequestBody User user) {
-        if (user.getId() == null || user.getId() == 0) {
-            user.setId(idCounter.getIdCounter());
-        }
-        if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Неверный формат Login");
-        }
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        users.put(user.getId(), user);
-        log.info("Добавлен объект: {}", user);
-        return user;
+    public User addUser(@Valid @RequestBody User user) {
+        return userService.addUser(user);
     }
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
-        if (user.getId() == null || user.getId() == 0) {
-            user.setId(idCounter.getIdCounter());
-        }
-        if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Неверный формат Login");
-        }
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        if (users.containsKey(user.getId())) {
-            users.remove(user.getId());
-            users.put(user.getId(), user);
-            log.info("Добавлен объект: {}", user);
-            return user;
-        } else {
-            throw new ValidationException("Пользователь с id: " + user.getId() + " отсутствует в базе!");
-        }
+        return userService.updateUser(user);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addNewFriend(@PathVariable("id") Long userID,
+                             @PathVariable("friendId") Long friendID) {
+        userService.addNewFriend(userID, friendID);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFriend(@PathVariable("id") Long userID,
+                             @PathVariable("friendId") Long friendID) {
+        userService.removeFriend(userID, friendID);
     }
 }
