@@ -29,7 +29,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        if (isExistsUser(user.getId())) {
+        if (isNotExistsUser(user.getId())) {
             throw new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", user.getId()));
         }
         users.put(user.getId(), user);
@@ -68,14 +68,14 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public List<User> getFriends(Long id) {
-        if (isExistsUser(id)) {
+        if (isNotExistsUser(id)) {
             throw new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", id));
         }
         return users.get(id).getFriends().stream().map(users::get).collect(Collectors.toList());
     }
 
     @Override
-    public boolean isExistsUser(Long id) {
+    public boolean isNotExistsUser(Long id) {
         return !users.containsKey(id);
     }
 

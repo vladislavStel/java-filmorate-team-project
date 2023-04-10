@@ -26,7 +26,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        if (isExistsFilm(film.getId())) {
+        if (isNotExistsFilm(film.getId())) {
             throw new ObjectNotFoundException(String.format("Фильм не найден: id=%d", film.getId()));
         }
         films.put(film.getId(), film);
@@ -56,7 +56,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public boolean isExistsFilm(Long id) {
+    public boolean isNotExistsFilm(Long id) {
         return !films.containsKey(id);
     }
 

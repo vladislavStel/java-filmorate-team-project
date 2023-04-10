@@ -34,14 +34,14 @@ public class UserService {
     }
 
     public User getUserByID(Long id) {
-        if (userStorage.isExistsUser(id)) {
+        if (userStorage.isNotExistsUser(id)) {
             throw new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", id));
         }
         return userStorage.getUserById(id);
     }
 
     public void addNewFriend(Long userID, Long friendID) {
-        if (userStorage.isExistsUser(userID) || userStorage.isExistsUser(friendID)) {
+        if (userStorage.isNotExistsUser(userID) || userStorage.isNotExistsUser(friendID)) {
             throw new ObjectNotFoundException(String.format("Пользователь id=%d или/и друг id=%d не найден",
                     userID, friendID));
         }
@@ -49,7 +49,7 @@ public class UserService {
     }
 
     public void removeFriend(Long userID, Long friendID) {
-        if (userStorage.isExistsUser(userID) || userStorage.isExistsUser(friendID)) {
+        if (userStorage.isNotExistsUser(userID) || userStorage.isNotExistsUser(friendID)) {
             throw new ObjectNotFoundException(String.format("Пользователь id=%d или/и друг id=%d не найден",
                     userID, friendID));
         }

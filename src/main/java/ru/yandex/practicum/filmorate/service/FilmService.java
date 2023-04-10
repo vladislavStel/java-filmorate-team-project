@@ -34,14 +34,14 @@ public class FilmService {
     }
 
     public Film getFilmByID(Long id) {
-        if (filmStorage.isExistsFilm(id)) {
+        if (filmStorage.isNotExistsFilm(id)) {
             throw new ObjectNotFoundException(String.format("Фильм не найден: id=%d", id));
         }
         return filmStorage.getFilmById(id);
     }
 
     public void addLike(Long filmID, Long userID) {
-        if (filmStorage.isExistsFilm(filmID) || userStorage.isExistsUser(userID)) {
+        if (filmStorage.isNotExistsFilm(filmID) || userStorage.isNotExistsUser(userID)) {
             throw new ObjectNotFoundException(String.format("Фильм id=%d или/и пользователь id=%d не найден",
                     filmID, userID));
         }
@@ -49,7 +49,7 @@ public class FilmService {
     }
 
     public void removeLike(Long filmID, Long userID) {
-        if (filmStorage.isExistsFilm(filmID) || userStorage.isExistsUser(userID)) {
+        if (filmStorage.isNotExistsFilm(filmID) || userStorage.isNotExistsUser(userID)) {
             throw new ObjectNotFoundException(String.format("Фильм id=%d или/и пользователь id=%d не найден",
                     filmID, userID));
         }
