@@ -28,7 +28,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopular(@RequestParam(defaultValue = "10", required = false) Integer count) {
+    public List<Film> getPopular(@RequestParam(defaultValue = "10", required = false) Long count) {
         if (count < 0) {
             throw new IncorrectParameterException(count);
         }
