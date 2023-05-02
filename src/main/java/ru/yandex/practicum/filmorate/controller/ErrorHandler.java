@@ -68,4 +68,5 @@ public class ErrorHandler {
         log.error(e.getMessage(), e);
         return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
+
 }

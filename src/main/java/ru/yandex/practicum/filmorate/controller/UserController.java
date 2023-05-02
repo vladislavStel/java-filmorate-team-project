@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -17,7 +16,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public Collection<User> getAllUsers() {
+    public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
 
@@ -58,4 +57,5 @@ public class UserController {
                              @PathVariable("friendId") Long friendID) {
         userService.removeFriend(userID, friendID);
     }
+
 }

@@ -12,4 +12,5 @@ public class DateValidator implements ConstraintValidator<IsAfterDate, LocalDate
     public boolean isValid(LocalDate localDate, ConstraintValidatorContext constraintValidatorContext) {
         return !localDate.isBefore(MOVIE_BIRTHDAY);
     }
+
 }
