@@ -1,34 +1,44 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.annotation.NameValidator;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.friend.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Collection;
 import java.util.List;
 
+@Slf4j
 @Service
-@AllArgsConstructor
 public class UserService {
 
     private final UserStorage userStorage;
-    private final NameValidator nameValidator;
+    private final FriendsStorage friendsStorage;
 
-    public Collection<User> getAllUsers() {
-        return userStorage.getAllUsers();
+    @Autowired
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendsStorage friendsStorage) {
+        this.userStorage = userStorage;
+        this.friendsStorage = friendsStorage;
+    }
+
+    public List<User> getAllUsers() {
+        log.info("Количество зарегистрированных пользователей: {}", userStorage.findAllUsers().size());
+        return userStorage.findAllUsers();
     }
 
     public User addUser(User user) {
-        user.setName(nameValidator.validateName(user.getName(), user.getLogin()));
-        userStorage.add(user);
+        userStorage.save(user);
         return user;
     }
 
     public User updateUser(User user) {
-        user.setName(nameValidator.validateName(user.getName(), user.getLogin()));
+        if (userStorage.isNotExistsUser(user.getId())) {
+            throw new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", user.getId()));
+        }
         userStorage.update(user);
         return user;
     }
@@ -37,7 +47,7 @@ public class UserService {
         if (userStorage.isNotExistsUser(id)) {
             throw new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", id));
         }
-        return userStorage.getUserById(id);
+        return userStorage.findUserById(id);
     }
 
     public void addNewFriend(Long userID, Long friendID) {
@@ -45,7 +55,10 @@ public class UserService {
             throw new ObjectNotFoundException(String.format("Пользователь id=%d или/и друг id=%d не найден",
                     userID, friendID));
         }
-        userStorage.addFriend(userID, friendID);
+        if (userID.equals(friendID)) {
+            throw new ValidationException("Ошибка валидации. Нельзя добавить себя в друзья");
+        }
+        friendsStorage.save(userID, friendID);
     }
 
     public void removeFriend(Long userID, Long friendID) {
@@ -53,16 +66,23 @@ public class UserService {
             throw new ObjectNotFoundException(String.format("Пользователь id=%d или/и друг id=%d не найден",
                     userID, friendID));
         }
-        userStorage.removeFriend(userID, friendID);
+        if (userID.equals(friendID)) {
+            throw new ValidationException("Ошибка валидации. Нельзя удалить себя из друзей");
+        }
+        friendsStorage.delete(userID, friendID);
     }
 
     public List<User> getListFriends(Long id) {
-        return userStorage.getFriends(id);
+        if (userStorage.isNotExistsUser(id)) {
+            throw new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", id));
+        }
+        return friendsStorage.findFriends(id);
     }
 
     public List<User> getListOfCommonFriends(Long id, Long otherID) {
-        List<User> list = userStorage.getFriends(id);
-        list.retainAll(userStorage.getFriends(otherID));
+        List<User> list = getListFriends(id);
+        list.retainAll(getListFriends(otherID));
         return list;
     }
+
 }
