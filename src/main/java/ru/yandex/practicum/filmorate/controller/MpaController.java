@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.MpaService;
 
-import java.util.Collection;
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -18,7 +18,7 @@ public class MpaController {
     private final MpaService mpaService;
 
     @GetMapping
-    public Collection<Mpa> getAllMpa() {
+    public List<Mpa> getAllMpa() {
         return mpaService.getAllMpa();
     }
 
@@ -26,4 +26,5 @@ public class MpaController {
     public Mpa getMpa(@PathVariable("id") int id) {
         return mpaService.getMpa(id);
     }
+
 }
