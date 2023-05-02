@@ -87,10 +87,7 @@ public class FilmDbStorage implements FilmStorage {
             );
             int mpaId = filmRows.getInt("mpa_id");
             film.setMpa(mpaStorage.findMpaById(mpaId));
-            Set<Genre> genres = genreStorage.findFilmGenres(id);
-            if (genres.size() != 0) {
-                film.setGenres(genreStorage.findFilmGenres(id));
-            }
+            film.setGenres(genreStorage.findFilmGenres(id));
             log.info("Найден фильм: id={}", id);
             return film;
         } else {
