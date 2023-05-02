@@ -1,43 +1,56 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikesStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
 public class FilmService {
 
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
+    private final LikesStorage likesStorage;
 
-    public Collection<Film> getAllFilms() {
-        return filmStorage.getAllFilms();
+    public FilmService(@Qualifier("userDbStorage") UserStorage userStorage,
+                       @Qualifier("filmDbStorage") FilmStorage filmStorage,
+                       LikesStorage likesStorage) {
+        this.userStorage = userStorage;
+        this.filmStorage = filmStorage;
+        this.likesStorage = likesStorage;
+    }
+
+    public List<Film> getAllFilms() {
+        return filmStorage.findAllFilms();
     }
 
     public Film addFilm(Film film) {
-        filmStorage.add(film);
+        filmStorage.save(film);
         return film;
     }
 
     public Film updateFilm(Film film) {
         filmStorage.update(film);
-        return film;
+        Film filmSetGenres = filmStorage.findFilmById(film.getId());
+        if (film.getGenres() == null) {
+            filmSetGenres.setGenres(null);
+        } else if (film.getGenres().isEmpty()) {
+            filmSetGenres.setGenres(new LinkedHashSet<>());
+        }
+        return filmSetGenres;
     }
 
     public Film getFilmByID(Long id) {
         if (filmStorage.isNotExistsFilm(id)) {
             throw new ObjectNotFoundException(String.format("Фильм не найден: id=%d", id));
         }
-        return filmStorage.getFilmById(id);
+        return filmStorage.findFilmById(id);
     }
 
     public void addLike(Long filmID, Long userID) {
@@ -45,7 +58,7 @@ public class FilmService {
             throw new ObjectNotFoundException(String.format("Фильм id=%d или/и пользователь id=%d не найден",
                     filmID, userID));
         }
-        filmStorage.addLike(filmID, userID);
+        likesStorage.saveLike(filmID, userID);
     }
 
     public void removeLike(Long filmID, Long userID) {
@@ -53,14 +66,11 @@ public class FilmService {
             throw new ObjectNotFoundException(String.format("Фильм id=%d или/и пользователь id=%d не найден",
                     filmID, userID));
         }
-        filmStorage.removeLike(filmID, userID);
+        likesStorage.deleteLike(filmID, userID);
     }
 
-    public List<Film> getPopular(Integer count) {
-        List<Film> popularFilms = new ArrayList<>(filmStorage.getAllFilms());
-        return popularFilms.stream()
-                .sorted((o1, o2) -> Integer.compare(o2.getLikes().size(), o1.getLikes().size()))
-                .limit(count)
-                .collect(Collectors.toList());
+    public List<Film> getPopular(Long count) {
+        return likesStorage.findPopular(count);
     }
+
 }
