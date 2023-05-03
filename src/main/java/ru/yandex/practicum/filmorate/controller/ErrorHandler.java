@@ -30,8 +30,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIncorrectParameterException(final IncorrectParameterException e) {
         log.error(e.getMessage(), e);
-        return new ErrorResponse(HttpStatus.BAD_REQUEST, "Неверное значение поля - count", e.getCount()
-        );
+        return new ErrorResponse(HttpStatus.BAD_REQUEST, "Неверное значение поля - count", e.getCount());
     }
 
     @ExceptionHandler(ValidationException.class)
@@ -69,4 +68,5 @@ public class ErrorHandler {
         log.error(e.getMessage(), e);
         return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
+
 }

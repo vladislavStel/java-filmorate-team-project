@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -18,7 +17,7 @@ public class FilmController {
     private final FilmService filmService;
 
     @GetMapping
-    public Collection<Film> getAllFilms() {
+    public List<Film> getAllFilms() {
         return filmService.getAllFilms();
     }
 
@@ -28,7 +27,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopular(@RequestParam(defaultValue = "10", required = false) Integer count) {
+    public List<Film> getPopular(@RequestParam(defaultValue = "10", required = false) Long count) {
         if (count < 0) {
             throw new IncorrectParameterException(count);
         }
@@ -56,4 +55,5 @@ public class FilmController {
                                  @PathVariable("userId") Long userID) {
         filmService.removeLike(filmID, userID);
     }
+
 }

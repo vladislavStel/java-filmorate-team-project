@@ -24,7 +24,7 @@ public class ErrorResponse {
 
     private String message;
 
-    private Integer count;
+    private Long count;
 
     public ErrorResponse() {
         timestamp = new Date();
@@ -38,7 +38,7 @@ public class ErrorResponse {
         this.message = message;
     }
 
-    public ErrorResponse(HttpStatus httpStatus, String message, Integer count) {
+    public ErrorResponse(HttpStatus httpStatus, String message, Long count) {
         this();
 
         this.code = httpStatus.value();
@@ -55,4 +55,5 @@ public class ErrorResponse {
         this.fieldName = fieldName;
         this.message = message;
     }
+
 }
