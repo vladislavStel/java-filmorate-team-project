@@ -8,19 +8,16 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.List;
 
 @Slf4j
 @AllArgsConstructor
-@Repository("filmDbStorage")
+@Repository
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final GenreStorage genreStorage;
-    private final MpaStorage mpaStorage;
 
     @Override
     public Film save(Film film) {
@@ -28,7 +25,6 @@ public class FilmDbStorage implements FilmStorage {
                 .withTableName("FILM")
                 .usingGeneratedKeyColumns("film_id");
         film.setId(simpleJdbcInsert.executeAndReturnKey(film.toMap()).longValue());
-        genreStorage.saveGenresByFilm(film);
         jdbcTemplate.update("UPDATE FILM SET mpa_id = ? WHERE film_id = ?",
                 film.getMpa().getId(),
                 film.getId());
@@ -53,39 +49,28 @@ public class FilmDbStorage implements FilmStorage {
                 film.getDuration(),
                 film.getMpa().getId(),
                 film.getId());
-        genreStorage.deleteGenresByFilm(film);
-        genreStorage.saveGenresByFilm(film);
         log.info("Данные фильма обновлены: id={}", film.getId());
         return film;
     }
 
     @Override
-    public List<Film> findAllFilms() {
-        return jdbcTemplate.query("SELECT * FROM FILM", (rs, rowNum) -> new Film(
-                        rs.getLong("film_id"),
-                        rs.getString("name"),
-                        rs.getString("description"),
-                        rs.getDate("releaseDate").toLocalDate(),
-                        rs.getInt("duration"),
-                        genreStorage.findFilmGenres(rs.getLong("film_id")),
-                        mpaStorage.findMpaById(rs.getInt("mpa_id"))
-        ));
+    public List<Long> findAllFilms() {
+        return jdbcTemplate.query("SELECT film_id FROM FILM ORDER BY film_id;",
+                ((rs, rowNum) -> rs.getLong("film_id")));
     }
 
     @Override
     public Film findFilmById(Long id) {
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT * FROM FILM WHERE film_id = ?", id);
         if (filmRows.next()) {
-            Film film = new Film(
-                    filmRows.getLong("film_id"),
-                    filmRows.getString("name"),
-                    filmRows.getString("description"),
-                    filmRows.getDate("releaseDate").toLocalDate(),
-                    filmRows.getInt("duration")
-            );
-            int mpaId = filmRows.getInt("mpa_id");
-            film.setMpa(mpaStorage.findMpaById(mpaId));
-            film.setGenres(genreStorage.findFilmGenres(id));
+            Film film = Film.builder()
+                .id(filmRows.getLong("film_id"))
+                .name(filmRows.getString("name"))
+                .description(filmRows.getString("description"))
+                .releaseDate(filmRows.getDate("releaseDate").toLocalDate())
+                .duration(filmRows.getInt("duration"))
+                .mpa(new Mpa(filmRows.getInt("mpa_id")))
+                .build();
             log.info("Найден фильм: id={}", id);
             return film;
         } else {

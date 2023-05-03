@@ -1,56 +1,54 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikesStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class FilmService {
 
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
     private final LikesStorage likesStorage;
-
-    public FilmService(@Qualifier("userDbStorage") UserStorage userStorage,
-                       @Qualifier("filmDbStorage") FilmStorage filmStorage,
-                       LikesStorage likesStorage) {
-        this.userStorage = userStorage;
-        this.filmStorage = filmStorage;
-        this.likesStorage = likesStorage;
-    }
+    private final GenreStorage genreStorage;
+    private final MpaStorage mpaStorage;
 
     public List<Film> getAllFilms() {
-        return filmStorage.findAllFilms();
+        return filmStorage.findAllFilms().stream().map(this::getFilmByID).collect(Collectors.toList());
     }
 
     public Film addFilm(Film film) {
         filmStorage.save(film);
+        genreStorage.saveGenresByFilm(film);
         return film;
     }
 
     public Film updateFilm(Film film) {
         filmStorage.update(film);
-        Film filmSetGenres = filmStorage.findFilmById(film.getId());
-        if (film.getGenres() == null) {
-            filmSetGenres.setGenres(null);
-        } else if (film.getGenres().isEmpty()) {
-            filmSetGenres.setGenres(new LinkedHashSet<>());
-        }
-        return filmSetGenres;
+        genreStorage.deleteGenresByFilm(film);
+        genreStorage.saveGenresByFilm(film);
+        return getFilmByID(film.getId());
     }
 
     public Film getFilmByID(Long id) {
         if (filmStorage.isNotExistsFilm(id)) {
             throw new ObjectNotFoundException(String.format("Фильм не найден: id=%d", id));
         }
-        return filmStorage.findFilmById(id);
+        Film film = filmStorage.findFilmById(id);
+        int mpaId = film.getMpa().getId();
+        film.setMpa(mpaStorage.findMpaById(mpaId));
+        film.setGenres(genreStorage.findFilmGenres(id));
+        return film;
     }
 
     public void addLike(Long filmID, Long userID) {
@@ -70,7 +68,11 @@ public class FilmService {
     }
 
     public List<Film> getPopular(Long count) {
-        return likesStorage.findPopular(count);
+        List<Long> topFilms = likesStorage.findPopular(count);
+        if (!topFilms.isEmpty()) {
+            return topFilms.stream().map(this::getFilmByID).collect(Collectors.toList());
+        }
+        return getAllFilms().stream().limit(count).collect(Collectors.toList());
     }
 
 }

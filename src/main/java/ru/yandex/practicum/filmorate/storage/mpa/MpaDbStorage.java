@@ -32,7 +32,9 @@ public class MpaDbStorage implements MpaStorage {
         if (userRows.next()) {
             log.info("Mpa найден: {}", id);
             return new Mpa(id, userRows.getString("name"));
-        } else throw new ObjectNotFoundException(String.format("Mpa не найден: id=%d", id));
+        } else {
+            throw new ObjectNotFoundException(String.format("Mpa не найден: id=%d", id));
+        }
     }
 
 }
