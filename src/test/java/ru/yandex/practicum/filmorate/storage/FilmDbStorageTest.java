@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -12,7 +12,7 @@ import org.springframework.test.jdbc.JdbcTestUtils;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.impl.FilmDbStorage;
 
 import java.time.LocalDate;
 
@@ -30,8 +30,8 @@ public class FilmDbStorageTest {
     private static Film film2;
     private static Film filmNotFind;
 
-    @BeforeEach
-    void beforeEach() {
+    @AfterEach
+    void AfterEach() {
 
         JdbcTestUtils.deleteFromTables(jdbcTemplate, "FILM");
         jdbcTemplate.update("ALTER TABLE FILM ALTER COLUMN film_id RESTART WITH 1");

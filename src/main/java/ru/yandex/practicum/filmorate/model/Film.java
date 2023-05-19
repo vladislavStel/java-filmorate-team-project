@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.yandex.practicum.filmorate.annotation.IsAfterDate;
+import ru.yandex.practicum.filmorate.validator.IsAfterDate;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -37,7 +37,6 @@ public class Film {
 
     Set<Genre> genres;
 
-    @NotNull
     Mpa mpa;
 
     Long rate;
