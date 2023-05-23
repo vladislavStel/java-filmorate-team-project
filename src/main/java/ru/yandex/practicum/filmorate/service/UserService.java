@@ -18,6 +18,8 @@ public interface UserService {
 
     void removeFriend(Long userID, Long friendID);
 
+    void removeUserById(Long id);
+
     List<User> getListFriends(Long id);
 
     List<User> getListOfCommonFriends(Long id, Long otherID);

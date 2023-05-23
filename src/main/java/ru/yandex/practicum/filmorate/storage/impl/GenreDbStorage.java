@@ -14,10 +14,7 @@ import ru.yandex.practicum.filmorate.storage.GenreStorage;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Repository
@@ -49,7 +46,7 @@ public class GenreDbStorage implements GenreStorage {
     public void saveGenresByFilm(Film film) {
         if (film.getGenres() != null) {
             List<Genre> genreList = new ArrayList<>(film.getGenres());
-            jdbcTemplate.batchUpdate("INSERT INTO GENRE_LIST (film_id, genre_id) VALUES (?, ?)",
+            jdbcTemplate.batchUpdate("INSERT INTO GENRE_LIST (film_id, genre_id) VALUES (?, ?) ",
                 new BatchPreparedStatementSetter() {
                 @Override
                 public void setValues(PreparedStatement ps, int i) throws SQLException {
