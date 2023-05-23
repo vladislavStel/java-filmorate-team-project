@@ -80,6 +80,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void removeUserById(Long id) {
+        if (userStorage.isNotExistsUser(id)) {
+            throw new ObjectNotFoundException(String.format("Пользователь id=%d ", id));
+        }
+        userStorage.deleteUserById(id);
+    }
+
+    @Override
     public List<User> getListFriends(Long id) {
         if (userStorage.isNotExistsUser(id)) {
             throw new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", id));

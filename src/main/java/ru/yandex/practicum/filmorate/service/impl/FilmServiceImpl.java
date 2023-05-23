@@ -75,6 +75,14 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
+    public void removeFilmById(Long filmId) {
+        if (filmStorage.isNotExistsFilm(filmId)) {
+            throw new ObjectNotFoundException(String.format("Фильм id=%d не найден", filmId));
+        }
+        filmStorage.deleteFilmById(filmId);
+    }
+
+    @Override
     public List<Film> getPopular(Long count) {
         List<Long> topFilms = likesStorage.findPopular(count);
         if (!topFilms.isEmpty()) {

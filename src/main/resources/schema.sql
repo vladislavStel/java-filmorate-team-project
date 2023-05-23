@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS USERS (
 );
 
 CREATE TABLE IF NOT EXISTS FRIEND_LIST (
-    user_id bigint REFERENCES USERS (user_id),
-    friend_id bigint REFERENCES USERS (user_id)
+    user_id bigint REFERENCES USERS (user_id) ON DELETE CASCADE,
+    friend_id bigint REFERENCES USERS (user_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS MPA (
@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS FILM (
 );
 
 CREATE TABLE IF NOT EXISTS LIKE_LIST (
-    film_id bigint REFERENCES FILM (film_id),
-    user_id bigint REFERENCES USERS (user_id)
+    film_id bigint REFERENCES FILM (film_id) ON DELETE CASCADE,
+    user_id bigint REFERENCES USERS (user_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS GENRE (
@@ -38,6 +38,6 @@ CREATE TABLE IF NOT EXISTS GENRE (
 );
 
 CREATE TABLE IF NOT EXISTS GENRE_LIST (
-    film_id bigint REFERENCES FILM (film_id),
-    genre_id int REFERENCES GENRE (genre_id)
+    film_id bigint REFERENCES FILM (film_id) ON DELETE CASCADE,
+    genre_id int REFERENCES GENRE (genre_id) ON DELETE CASCADE
 );

@@ -65,13 +65,13 @@ public class FilmDbStorage implements FilmStorage {
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT * FROM FILM WHERE film_id = ?", id);
         if (filmRows.next()) {
             Film film = Film.builder()
-                .id(filmRows.getLong("film_id"))
-                .name(filmRows.getString("name"))
-                .description(filmRows.getString("description"))
-                .releaseDate(filmRows.getDate("releaseDate").toLocalDate())
-                .duration(filmRows.getInt("duration"))
-                .mpa(new Mpa(filmRows.getInt("mpa_id")))
-                .build();
+                    .id(filmRows.getLong("film_id"))
+                    .name(filmRows.getString("name"))
+                    .description(filmRows.getString("description"))
+                    .releaseDate(filmRows.getDate("releaseDate").toLocalDate())
+                    .duration(filmRows.getInt("duration"))
+                    .mpa(new Mpa(filmRows.getInt("mpa_id")))
+                    .build();
             log.info("Найден фильм: id={}", id);
             return film;
         } else {
@@ -93,6 +93,15 @@ public class FilmDbStorage implements FilmStorage {
         }
         jdbcTemplate.update("DELETE FROM FILM WHERE film_id = ?", film.getId());
         log.info("Фильм удален: id={}", film.getId());
+    }
+
+    @Override
+    public void deleteFilmById(Long id) {
+        if (isNotExistsFilm(id)) {
+            throw new ObjectNotFoundException(String.format("Фильм не найден: id=%d", id));
+        }
+        jdbcTemplate.update("DELETE FROM FILM WHERE film_id = ?", id);
+        log.info("Фильм удален: id={}", id);
     }
 
 }
