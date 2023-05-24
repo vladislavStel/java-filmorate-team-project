@@ -80,13 +80,6 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public boolean isNotExistsFilm(Long id) {
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT * FROM FILM WHERE film_id = ?", id);
-        return !filmRows.next();
-    }
-
-
-    @Override
     public void delete(Film film) {
         if (isNotExistsFilm(film.getId())) {
             throw new ObjectNotFoundException(String.format("Фильм не найден: id=%d", film.getId()));
@@ -102,6 +95,66 @@ public class FilmDbStorage implements FilmStorage {
         }
         jdbcTemplate.update("DELETE FROM FILM WHERE film_id = ?", id);
         log.info("Фильм удален: id={}", id);
+    }
+
+    @Override
+    public List<Long> findFilmsByDirectorSorted(int directorId, String sortBy) {
+        switch (sortBy) {
+            case ("year"):
+                return findFilmsByDirectorSortedByYear(directorId);
+            case ("likes"):
+                return findFilmsByDirectorSortedByLikes(directorId);
+            default:
+                return findFilmsByDirector(directorId);
+        }
+    }
+
+    @Override
+    public List<Long> findFilmsByDirectorSortedByYear(int directorId) {
+        String sql =
+                "SELECT FILM.film_id " +
+                        "FROM FILM " +
+                        "LEFT JOIN DIRECTOR_LIST ON FILM.film_id = DIRECTOR_LIST.film_id " +
+                        "LEFT JOIN DIRECTOR ON DIRECTOR_LIST.director_id = DIRECTOR.director_id " +
+                        "WHERE DIRECTOR.director_id = ? " +
+                        "ORDER BY FILM.releaseDate ASC;";
+
+        return jdbcTemplate.query(sql, ((rs, rowNum) -> rs.getLong("film_id")), directorId);
+    }
+
+    @Override
+    public List<Long> findFilmsByDirectorSortedByLikes(int directorId) {
+        String sql =
+                "SELECT FILM.film_id " +
+                        "FROM FILM " +
+                        "LEFT JOIN LIKE_LIST AS LIKE_LIST ON FILM.film_id = LIKE_LIST.film_id " +
+                        "LEFT JOIN DIRECTOR_LIST ON FILM.film_id = DIRECTOR_LIST.film_id " +
+                        "LEFT JOIN DIRECTOR ON DIRECTOR_LIST.director_id = DIRECTOR.director_id " +
+                        "WHERE DIRECTOR.director_id = ? " +
+                        "GROUP BY FILM.film_id " +
+                        "ORDER BY COUNT (LIKE_LIST.user_id) DESC;";
+
+        return jdbcTemplate.query(sql, ((rs, rowNum) -> rs.getLong("film_id")), directorId);
+    }
+
+    @Override
+    public List<Long> findFilmsByDirector(int directorId) {
+        String sql =
+                "SELECT FILM.film_id " +
+                        "FROM FILM " +
+                        "LEFT JOIN LIKE_LIST AS likes ON FILM.film_id = LIKE_LIST.film_id " +
+                        "LEFT JOIN DIRECTOR_LIST ON FILM.film_id = DIRECTOR_LIST.film_id " +
+                        "LEFT JOIN DIRECTOR ON DIRECTOR_LIST.director_id = DIRECTOR.director_id " +
+                        "WHERE DIRECTOR.director_id = ? " +
+                        "GROUP BY DIRECTOR_LIST.director_id;";
+
+        return jdbcTemplate.query(sql, ((rs, rowNum) -> rs.getLong("film_id")), directorId);
+    }
+
+    @Override
+    public boolean isNotExistsFilm(Long id) {
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT * FROM FILM WHERE film_id = ?", id);
+        return !filmRows.next();
     }
 
 }

@@ -5,11 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.LikesStorage;
-import ru.yandex.practicum.filmorate.storage.MpaStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +18,7 @@ public class FilmServiceImpl implements FilmService {
     private final FilmStorage filmStorage;
     private final LikesStorage likesStorage;
     private final GenreStorage genreStorage;
+    private final DirectorStorage directorStorage;
     private final MpaStorage mpaStorage;
 
     @Override
@@ -33,6 +30,7 @@ public class FilmServiceImpl implements FilmService {
     public Film addFilm(Film film) {
         filmStorage.save(film);
         genreStorage.saveGenresByFilm(film);
+        directorStorage.saveDirectorByFilm(film);
         return film;
     }
 
@@ -41,6 +39,8 @@ public class FilmServiceImpl implements FilmService {
         filmStorage.update(film);
         genreStorage.deleteGenresByFilm(film);
         genreStorage.saveGenresByFilm(film);
+        directorStorage.deleteDirectorByFilm(film);
+        directorStorage.saveDirectorByFilm(film);
         return getFilmByID(film.getId());
     }
 
@@ -53,6 +53,7 @@ public class FilmServiceImpl implements FilmService {
         int mpaId = film.getMpa().getId();
         film.setMpa(mpaStorage.findMpaById(mpaId));
         film.setGenres(genreStorage.findFilmGenres(id));
+        film.setDirectors(directorStorage.findFilmDirectors(id));
         return film;
     }
 
@@ -89,6 +90,20 @@ public class FilmServiceImpl implements FilmService {
             return topFilms.stream().map(this::getFilmByID).collect(Collectors.toList());
         }
         return getAllFilms().stream().limit(count).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Film> getFilmsSorted(int directorId, String sortBy) {
+
+        if (directorStorage.isNotExistsDirector(directorId)) {
+            throw new ObjectNotFoundException(String.format("Не найден режиссер: id=%d", directorId));
+        }
+
+        return filmStorage
+                .findFilmsByDirectorSorted(directorId, sortBy)
+                .stream()
+                .map(this::getFilmByID)
+                .collect(Collectors.toList());
     }
 
 }
