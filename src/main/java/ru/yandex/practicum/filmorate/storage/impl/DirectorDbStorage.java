@@ -50,7 +50,7 @@ public class DirectorDbStorage implements DirectorStorage {
     public void saveDirectorByFilm(Film film) {
         if (film.getDirectors() != null) {
             List<Director> directorList = new ArrayList<>(film.getDirectors());
-            jdbcTemplate.batchUpdate("INSERT INTO DIRECTOR_LIST (film_id, director_id) VALUES (?, ?) ",
+            jdbcTemplate.batchUpdate("INSERT INTO DIRECTOR_LIST (film_id, director_id) VALUES (?, ?)",
                     new BatchPreparedStatementSetter() {
                         @Override
                         public void setValues(PreparedStatement ps, int i) throws SQLException {
