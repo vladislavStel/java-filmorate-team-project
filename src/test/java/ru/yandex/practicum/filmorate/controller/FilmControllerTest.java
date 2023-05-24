@@ -11,10 +11,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -52,7 +54,10 @@ class FilmControllerTest {
                 .name("Film name")
                 .description("Film description")
                 .releaseDate(testReleaseDate)
-                .duration(duration);
+                .duration(duration)
+                .genres(new HashSet<>())
+                .directors(new HashSet<>())
+                .mpa(new Mpa(1));
 
     }
 
