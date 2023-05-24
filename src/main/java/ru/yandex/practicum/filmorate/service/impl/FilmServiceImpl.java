@@ -124,4 +124,18 @@ public class FilmServiceImpl implements FilmService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<Film> getFilmsSorted(int directorId, String sortBy) {
+
+        if (directorStorage.isNotExistsDirector(directorId)) {
+            throw new ObjectNotFoundException(String.format("Не найден режиссер: id=%d", directorId));
+        }
+
+        return filmStorage
+                .findFilmsByDirectorSorted(directorId, sortBy)
+                .stream()
+                .map(this::getFilmByID)
+                .collect(Collectors.toList());
+    }
+
 }
