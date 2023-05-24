@@ -56,6 +56,12 @@ public class FilmController {
         return filmService.getFilmsByDirectorAndTitle(query, by);
     }
 
+    @GetMapping("/director/{directorId}")
+    public List<Film> getFilmsSortByDirector(@Valid @PathVariable("directorId") int directorId,
+                                             @RequestParam(value = "sortBy", required = false) String sortBy) {
+        return filmService.getFilmsSorted(directorId, sortBy);
+    }
+
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
         return filmService.addFilm(film);
