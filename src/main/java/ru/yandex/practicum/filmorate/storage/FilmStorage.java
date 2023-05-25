@@ -28,12 +28,12 @@ public interface FilmStorage {
 
     boolean isNotExistsFilm(Long id);
 
-    List<Film> findPopularFilmSortedByGenreAndYear(Long count, int genreId, Integer year);
+    List<Film> getPopularFilmSortedByGenreAndYear(Long count, Long genreId, Integer year);
 
-    List<Film> findPopularFilmSortedByGenre(Long count, int genreId);
+    List<Film> getPopularFilmSortedByGenre(Long count, Long genreId);
 
-    List<Film> findPopularFilmSortedByYear(Long count, Integer year);
+    List<Film> getPopularFilmSortedByYear(Long count, Integer year);
 
-    List<Film> findPopular(Long count);
+    List<Film> getPopular(Long count);
 
 }
