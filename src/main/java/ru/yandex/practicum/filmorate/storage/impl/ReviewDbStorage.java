@@ -25,7 +25,8 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public Review saveReview(Review review) {
         String sqlSaveReview = "INSERT INTO REVIEW (CONTENT, IS_POSITIVE, USER_ID, FILM_ID, USEFUL) VALUES (?,?,?,?,?)";
-        jdbcTemplate.update(sqlSaveReview, review.getContent(), review.getIsPositive(), review.getUserId(), review.getFilmId(), review.getUseful());
+        jdbcTemplate.update(sqlSaveReview, review.getContent(), review.getIsPositive(), review.getUserId(),
+                review.getFilmId(), review.getUseful());
         String sqlIdReview = "SELECT REVIEW_ID FROM REVIEW ORDER BY REVIEW_ID DESC LIMIT 1";
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlIdReview);
         if (sqlRowSet.next()) {
@@ -97,7 +98,6 @@ public class ReviewDbStorage implements ReviewStorage {
         } else {
             log.info("Ошибка при добавлении лайка для отзыва ID = {} от пользователя с ID = {}.", reviewId, userId);
             throw new IncorrectReviewLikeException(String.format("Ошибка при добавлении лайка для отзыва ID = %d от пользователя с ID = %d.", reviewId, userId));
-
         }
     }
 

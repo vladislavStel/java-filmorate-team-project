@@ -13,17 +13,21 @@ import javax.validation.constraints.NotNull;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Review {
 
-    private long reviewId;
-    @NotBlank
-    private String content;
-    @NotNull
-    private Boolean isPositive;
-    @NotNull
-    private Long userId;
-    @NotNull
-    private Long filmId;
-    @NotNull
-    private int useful;
+    long reviewId;
 
+    @NotBlank
+    String content;
+
+    @NotNull
+    Boolean isPositive;
+
+    @NotNull
+    Long userId;
+
+    @NotNull
+    Long filmId;
+
+    @NotNull
+    int useful;
 
 }
