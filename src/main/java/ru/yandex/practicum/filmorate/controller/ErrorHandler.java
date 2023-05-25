@@ -6,9 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
 import javax.validation.ConstraintViolationException;
@@ -31,6 +29,13 @@ public class ErrorHandler {
     public ErrorResponse handleIncorrectParameterException(final IncorrectParameterException e) {
         log.error(e.getMessage(), e);
         return new ErrorResponse(HttpStatus.BAD_REQUEST, "Неверное значение поля - count", e.getCount());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handelReviewException(IncorrectFieldReviewException e) {
+        log.error(e.getMessage(), e);
+        return new ErrorResponse(HttpStatus.NOT_FOUND,"Укажите верные данные USER_ID или FILM_ID");
     }
 
     @ExceptionHandler(ValidationException.class)
