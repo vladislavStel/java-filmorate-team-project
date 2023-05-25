@@ -117,4 +117,12 @@ public class FilmServiceImpl implements FilmService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Collection<Film> getCommonFilms(Long userId, Long friendId) {
+        return filmStorage.findCommonFilmsWithFriend(userId,friendId)
+                .stream()
+                .map(this::getFilmByID)
+                .collect(Collectors.toList());
+    }
+
 }
