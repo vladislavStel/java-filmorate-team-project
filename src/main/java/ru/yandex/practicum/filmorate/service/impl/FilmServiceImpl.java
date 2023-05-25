@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.*;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -101,6 +102,14 @@ public class FilmServiceImpl implements FilmService {
 
         return filmStorage
                 .findFilmsByDirectorSorted(directorId, sortBy)
+                .stream()
+                .map(this::getFilmByID)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<Film> getCommonFilms(Long userId, Long friendId) {
+        return filmStorage.findCommonFilmsWithFriend(userId,friendId)
                 .stream()
                 .map(this::getFilmByID)
                 .collect(Collectors.toList());
