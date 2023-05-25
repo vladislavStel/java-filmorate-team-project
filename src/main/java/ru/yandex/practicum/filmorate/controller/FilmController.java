@@ -2,11 +2,11 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
@@ -27,11 +27,14 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopular(@RequestParam(defaultValue = "10", required = false) Long count) {
-        if (count < 0) {
-            throw new IncorrectParameterException(count);
-        }
-        return filmService.getPopular(count);
+    public List<Film> getPopular(@RequestParam(defaultValue = "10")
+                                      @Positive
+                                      Long count,
+                                      @RequestParam(defaultValue = "0")
+                                      Long genreId,
+                                      @RequestParam(defaultValue = "0")
+                                      Integer year) {
+        return filmService.getPopular(count, genreId, year);
     }
 
     @GetMapping("/director/{directorId}")
