@@ -7,10 +7,13 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 @Slf4j
@@ -19,6 +22,9 @@ import java.util.List;
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final MpaDbStorage mpaDbStorage;
+    private final GenreDbStorage genreDbStorage;
+    private final DirectorDbStorage directorDbStorage;
 
     @Override
     public Film save(Film film) {
@@ -80,6 +86,13 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public boolean isNotExistsFilm(Long id) {
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT * FROM FILM WHERE film_id = ?", id);
+        return !filmRows.next();
+    }
+
+
+    @Override
     public void delete(Film film) {
         if (isNotExistsFilm(film.getId())) {
             throw new ObjectNotFoundException(String.format("Фильм не найден: id=%d", film.getId()));
@@ -95,6 +108,65 @@ public class FilmDbStorage implements FilmStorage {
         }
         jdbcTemplate.update("DELETE FROM FILM WHERE film_id = ?", id);
         log.info("Фильм удален: id={}", id);
+    }
+
+    private Film mapRowToFilm(ResultSet rs) throws SQLException {
+        return Film.builder()
+                .id(rs.getLong("film_id"))
+                .name(rs.getString("name"))
+                .description(rs.getString("description"))
+                .releaseDate(rs.getDate("releaseDate").toLocalDate())
+                .duration(rs.getInt("duration"))
+                .mpa(mpaDbStorage.findMpaById(rs.getInt("mpa_id")))
+                .genres(genreDbStorage.findFilmGenres(rs.getLong("film_id")))
+                .directors(directorDbStorage.findFilmDirectors(rs.getLong("film_id")))
+                .build();
+    }
+
+    @Override
+    public List<Film> getPopularFilmSortedByGenreAndYear(Long count, Long genreId, Integer year) {
+        String sqlQuery = "SELECT f.* FROM film f " +
+                "LEFT JOIN like_list ll on f.film_id = ll.film_id " +
+                "LEFT JOIN genre_list gl ON f.film_id = gl.film_id " +
+                "WHERE gl.genre_id = ? AND year(f.releaseDate) = ? " +
+                "GROUP BY  f.film_id, gl.genre_id " +
+                "ORDER BY COUNT(ll.user_id) DESC " +
+                "LIMIT ?";
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToFilm(rs), genreId, year, count);
+    }
+
+    @Override
+    public List<Film> getPopularFilmSortedByGenre(Long count, Long genreId) {
+        String sqlQuery = "SELECT f.* FROM film f " +
+                "LEFT JOIN like_list ll on f.film_id = ll.film_id " +
+                "LEFT JOIN genre_list gl ON f.film_id = gl.film_id " +
+                "WHERE gl.genre_id = ? " +
+                "GROUP BY  f.film_id, gl.genre_id " +
+                "ORDER BY COUNT(ll.user_id) DESC " +
+                "LIMIT ?";
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToFilm(rs), genreId, count);
+    }
+
+    @Override
+    public List<Film> getPopularFilmSortedByYear(Long count, Integer year) {
+        String sqlQuery = "SELECT f.* FROM film f " +
+                "LEFT JOIN like_list ll on f.film_id = ll.film_id " +
+                "WHERE year(f.releaseDate) = ? " +
+                "GROUP BY  f.film_id " +
+                "ORDER BY COUNT(ll.user_id) DESC " +
+                "LIMIT ?";
+
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToFilm(rs), year, count);
+    }
+
+    @Override
+    public List<Film> getPopular(Long count) {
+        String sqlQuery = "SELECT f.* FROM film f " +
+                "LEFT JOIN like_list ll on f.film_id = ll.film_id " +
+                "GROUP BY  f.film_id " +
+                "ORDER BY COUNT(ll.user_id) DESC " +
+                "LIMIT ?";
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToFilm(rs), count);
     }
 
     @Override
@@ -149,12 +221,6 @@ public class FilmDbStorage implements FilmStorage {
                         "GROUP BY DIRECTOR_LIST.director_id;";
 
         return jdbcTemplate.query(sql, ((rs, rowNum) -> rs.getLong("film_id")), directorId);
-    }
-
-    @Override
-    public boolean isNotExistsFilm(Long id) {
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT * FROM FILM WHERE film_id = ?", id);
-        return !filmRows.next();
     }
 
 }

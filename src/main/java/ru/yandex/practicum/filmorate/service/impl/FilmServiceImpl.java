@@ -84,12 +84,17 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<Film> getPopular(Long count) {
-        List<Long> topFilms = likesStorage.findPopular(count);
-        if (!topFilms.isEmpty()) {
-            return topFilms.stream().map(this::getFilmByID).collect(Collectors.toList());
+    public List<Film> getPopular(Long count, Long genreId, Integer year) {
+        if (genreId != 0 && year != 0) {
+            return filmStorage.getPopularFilmSortedByGenreAndYear(count, genreId, year);
         }
-        return getAllFilms().stream().limit(count).collect(Collectors.toList());
+        if (genreId != 0 && year == 0) {
+            return filmStorage.getPopularFilmSortedByGenre(count, genreId);
+        }
+        if (genreId == 0 && year != 0) {
+            return filmStorage.getPopularFilmSortedByYear(count, year);
+        }
+        return filmStorage.getPopular(count);
     }
 
     @Override
