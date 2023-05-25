@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.service.ReviewService;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-
 import java.util.Collection;
 
 @Service
@@ -24,19 +23,16 @@ public class ReviewServiceImpl implements ReviewService {
     public Review addReview(Review review) {
         if (review.getUserId() == null || review.getFilmId() == null) {
             throw new ValidationException("Не заданно поле отзыва");
-
         }
         if (filmStorage.isNotExistsFilm(review.getFilmId()) || userStorage.isNotExistsUser(review.getUserId())) {
             throw new IncorrectFieldReviewException("Ошибка заполения поля USER_ID или FILM_ID");
         }
         return reviewStorage.saveReview(review);
-
     }
 
     @Override
     public Review upadateReview(Review review) {
         return reviewStorage.update(review);
-
     }
 
     @Override
@@ -47,14 +43,11 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public Collection<Review> getAllReviewsByFilmId(Long reviewId, Integer count) {
         return reviewStorage.getAllReviewsByFilmId(reviewId, count);
-
     }
 
     @Override
     public Review findReviewById(long id) {
         return reviewStorage.findById(id);
-
-
     }
 
     @Override
