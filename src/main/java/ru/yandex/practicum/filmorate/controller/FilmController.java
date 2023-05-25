@@ -2,16 +2,15 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
+import java.util.Collection;
 import java.util.List;
 
 @RestController
-@Validated
 @AllArgsConstructor
 @RequestMapping("/films")
 public class FilmController {
@@ -29,16 +28,11 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopular(@RequestParam(defaultValue = "10")
-                                      @Positive
-                                      Long count,
-                                      @RequestParam(defaultValue = "0")
-                                      @PositiveOrZero
-                                      int genreId,
-                                      @RequestParam(defaultValue = "0")
-                                      @PositiveOrZero
-                                      Integer year) {
-        return filmService.getPopular(count, genreId, year);
+    public List<Film> getPopular(@RequestParam(defaultValue = "10", required = false) Long count) {
+        if (count < 0) {
+            throw new IncorrectParameterException(count);
+        }
+        return filmService.getPopular(count);
     }
 
     @GetMapping("/director/{directorId}")
@@ -75,9 +69,8 @@ public class FilmController {
     }
 
     @GetMapping("/common")
-    public List<Film> getCommonFilmsWithFriend(@RequestParam @Positive Long userId,
-                                               @RequestParam @Positive Long friendId) {
-        return filmService.getCommonFilms(userId, friendId);
+    public Collection<Film> getCommonFilmsWithFriend(@RequestParam Long userId,
+                                                     @RequestParam Long friendId) {
+        return filmService.getCommonFilms(userId,friendId);
     }
-
 }
