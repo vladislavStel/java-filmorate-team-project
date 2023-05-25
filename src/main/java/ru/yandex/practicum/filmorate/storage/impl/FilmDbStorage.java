@@ -3,15 +3,17 @@ package ru.yandex.practicum.filmorate.storage.impl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 @Slf4j
@@ -20,7 +22,9 @@ import java.util.List;
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final RowMapper<Film> filmMapper;
+    private final MpaDbStorage mpaDbStorage;
+    private final GenreDbStorage genreDbStorage;
+    private final DirectorDbStorage directorDbStorage;
 
     @Override
     public Film save(Film film) {
@@ -87,6 +91,7 @@ public class FilmDbStorage implements FilmStorage {
         return !filmRows.next();
     }
 
+
     @Override
     public void delete(Film film) {
         if (isNotExistsFilm(film.getId())) {
@@ -105,8 +110,21 @@ public class FilmDbStorage implements FilmStorage {
         log.info("Фильм удален: id={}", id);
     }
 
+    private Film mapRowToFilm(ResultSet rs) throws SQLException {
+        return Film.builder()
+                .id(rs.getLong("film_id"))
+                .name(rs.getString("name"))
+                .description(rs.getString("description"))
+                .releaseDate(rs.getDate("releaseDate").toLocalDate())
+                .duration(rs.getInt("duration"))
+                .mpa(mpaDbStorage.findMpaById(rs.getInt("mpa_id")))
+                .genres(genreDbStorage.findFilmGenres(rs.getLong("film_id")))
+                .directors(directorDbStorage.findFilmDirectors(rs.getLong("film_id")))
+                .build();
+    }
+
     @Override
-    public List<Film> findPopularFilmSortedByGenreAndYear(Long count, int genreId, Integer year) {
+    public List<Film> getPopularFilmSortedByGenreAndYear(Long count, Long genreId, Integer year) {
         String sqlQuery = "SELECT f.* FROM film f " +
                 "LEFT JOIN like_list ll on f.film_id = ll.film_id " +
                 "LEFT JOIN genre_list gl ON f.film_id = gl.film_id " +
@@ -114,11 +132,11 @@ public class FilmDbStorage implements FilmStorage {
                 "GROUP BY  f.film_id, gl.genre_id " +
                 "ORDER BY COUNT(ll.user_id) DESC " +
                 "LIMIT ?";
-        return jdbcTemplate.query(sqlQuery, filmMapper, genreId, year, count);
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToFilm(rs), genreId, year, count);
     }
 
     @Override
-    public List<Film> findPopularFilmSortedByGenre(Long count, int genreId) {
+    public List<Film> getPopularFilmSortedByGenre(Long count, Long genreId) {
         String sqlQuery = "SELECT f.* FROM film f " +
                 "LEFT JOIN like_list ll on f.film_id = ll.film_id " +
                 "LEFT JOIN genre_list gl ON f.film_id = gl.film_id " +
@@ -126,11 +144,11 @@ public class FilmDbStorage implements FilmStorage {
                 "GROUP BY  f.film_id, gl.genre_id " +
                 "ORDER BY COUNT(ll.user_id) DESC " +
                 "LIMIT ?";
-        return jdbcTemplate.query(sqlQuery,filmMapper, genreId, count);
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToFilm(rs), genreId, count);
     }
 
     @Override
-    public List<Film> findPopularFilmSortedByYear(Long count, Integer year) {
+    public List<Film> getPopularFilmSortedByYear(Long count, Integer year) {
         String sqlQuery = "SELECT f.* FROM film f " +
                 "LEFT JOIN like_list ll on f.film_id = ll.film_id " +
                 "WHERE year(f.releaseDate) = ? " +
@@ -138,17 +156,17 @@ public class FilmDbStorage implements FilmStorage {
                 "ORDER BY COUNT(ll.user_id) DESC " +
                 "LIMIT ?";
 
-        return jdbcTemplate.query(sqlQuery, filmMapper, year, count);
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToFilm(rs), year, count);
     }
 
     @Override
-    public List<Film> findPopular(Long count) {
+    public List<Film> getPopular(Long count) {
         String sqlQuery = "SELECT f.* FROM film f " +
                 "LEFT JOIN like_list ll on f.film_id = ll.film_id " +
                 "GROUP BY  f.film_id " +
                 "ORDER BY COUNT(ll.user_id) DESC " +
                 "LIMIT ?";
-        return jdbcTemplate.query(sqlQuery, filmMapper, count);
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToFilm(rs), count);
     }
 
     @Override
