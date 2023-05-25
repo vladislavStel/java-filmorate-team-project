@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface FilmStorage {
@@ -26,16 +27,8 @@ public interface FilmStorage {
 
     List<Long> findFilmsByDirector(int directorId);
 
-    List<Long> findCommonFilmsWithFriend(Long userId, Long friendId);
+    Collection<Long> findCommonFilmsWithFriend(Long userId, Long friendId);
 
     boolean isNotExistsFilm(Long id);
-
-    List<Film> findPopularFilmSortedByGenreAndYear(Long count, int genreId, Integer year);
-
-    List<Film> findPopularFilmSortedByGenre(Long count, int genreId);
-
-    List<Film> findPopularFilmSortedByYear(Long count, Integer year);
-
-    List<Film> findPopular(Long count);
 
 }
