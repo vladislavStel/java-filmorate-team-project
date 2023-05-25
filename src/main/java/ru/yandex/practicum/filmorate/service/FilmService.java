@@ -20,13 +20,7 @@ public interface FilmService {
 
     void removeFilmById(Long filmId);
 
-    List<Film> getPopular(Long count, int genreId, Integer year);
-
-    List<Film> getFilmsSorted(int directorId, String sortBy);
-
-    List<Long> getFilmsByDirectorSorted(int directorId, String sortBy);
-
-    List<Film> getFilmsByDirectorAndTitle(String query, String by);
+    List<Film> getPopular(Long count, Long genreId, Integer year);
 
     List<Film> getFilmsSorted(int directorId, String sortBy);
 

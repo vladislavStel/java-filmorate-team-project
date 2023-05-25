@@ -3,15 +3,12 @@ package ru.yandex.practicum.filmorate.service.impl;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.*;
 
-import java.time.Year;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.ArrayList;
 
 @Service
 @AllArgsConstructor
@@ -87,67 +84,17 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<Film> getPopular(Long count, int genreId, Integer year) {
+    public List<Film> getPopular(Long count, Long genreId, Integer year) {
         if (genreId != 0 && year != 0) {
-            return filmStorage.findPopularFilmSortedByGenreAndYear(count, genreId, year);
+            return filmStorage.getPopularFilmSortedByGenreAndYear(count, genreId, year);
         }
         if (genreId != 0 && year == 0) {
-            return filmStorage.findPopularFilmSortedByGenre(count, genreId);
+            return filmStorage.getPopularFilmSortedByGenre(count, genreId);
         }
         if (genreId == 0 && year != 0) {
-            return filmStorage.findPopularFilmSortedByYear(count, year);
+            return filmStorage.getPopularFilmSortedByYear(count, year);
         }
-        if (year > Year.now().getValue()) {
-            throw new ValidationException("Выбраный год не был найден");
-        }
-
-        return filmStorage.findPopular(count);
-    }
-
-    @Override
-    public List<Film> getFilmsSorted(int directorId, String sortBy) {
-
-        if (directorStorage.isNotExistsDirector(directorId)) {
-            throw new ObjectNotFoundException(String.format("Не найден режиссер: id=%d", directorId));
-        }
-
-        return getFilmsByDirectorSorted(directorId, sortBy)
-                .stream()
-                .map(this::getFilmByID)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Long> getFilmsByDirectorSorted(int directorId, String sortBy) {
-        switch (sortBy) {
-            case ("year"):
-                return filmStorage.findFilmsByDirectorSortedByYear(directorId);
-            case ("likes"):
-                return filmStorage.findFilmsByDirectorSortedByLikes(directorId);
-            default:
-                return filmStorage.findFilmsByDirectorById(directorId);
-        }
-    }
-
-    @Override
-    public List<Film> getFilmsByDirectorAndTitle(String query, String by) {
-
-        List<Film> listFilms = new ArrayList<>();
-        if (by.contains("director")) {
-            listFilms.addAll(filmStorage.findFilmsByDirector(query));
-        }
-        if (by.contains("title")) {
-            listFilms.addAll(filmStorage.findFilmsByTitle(query));
-        }
-        return listFilms;
-    }
-
-    @Override
-    public List<Film> getCommonFilms(Long userId, Long friendId) {
-        return filmStorage.findCommonFilmsWithFriend(userId, friendId)
-                .stream()
-                .map(this::getFilmByID)
-                .collect(Collectors.toList());
+        return filmStorage.getPopular(count);
     }
 
     @Override
