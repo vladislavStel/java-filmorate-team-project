@@ -82,12 +82,6 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public boolean isNotExistsFilm(Long id) {
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT * FROM FILM WHERE film_id = ?", id);
-        return !filmRows.next();
-    }
-
-    @Override
     public void delete(Film film) {
         if (isNotExistsFilm(film.getId())) {
             throw new ObjectNotFoundException(String.format("Фильм не найден: id=%d", film.getId()));
@@ -203,6 +197,23 @@ public class FilmDbStorage implements FilmStorage {
                         "GROUP BY DIRECTOR_LIST.director_id;";
 
         return jdbcTemplate.query(sql, ((rs, rowNum) -> rs.getLong("film_id")), directorId);
+    }
+
+    @Override
+    public List<Long> findCommonFilmsWithFriend(Long userId, Long friendId) {
+        String sql = "SELECT * " +
+                "FROM LIKE_LIST " +
+                "JOIN LIKE_LIST LIKES ON LIKES.FILM_ID = LIKE_LIST.FILM_ID " +
+                "JOIN FILM on FILM.FILM_ID = LIKES.FILM_ID " +
+                "WHERE LIKES.USER_ID = ? AND LIKE_LIST.USER_ID = ?";
+        log.info("Получен список общих фильмов user: id={} с friend: id={}", userId,friendId);
+            return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("film_id"),userId,friendId);
+    }
+
+    @Override
+    public boolean isNotExistsFilm(Long id) {
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT * FROM FILM WHERE film_id = ?", id);
+        return !filmRows.next();
     }
 
 }
