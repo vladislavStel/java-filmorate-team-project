@@ -6,9 +6,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.FriendsStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
@@ -19,11 +22,16 @@ public class UserServiceImpl implements UserService {
 
     private final UserStorage userStorage;
     private final FriendsStorage friendsStorage;
+    private final FilmStorage filmStorage;
+    private final GenreStorage genreStorage;
 
     @Autowired
-    public UserServiceImpl(@Qualifier("userDbStorage") UserStorage userStorage, FriendsStorage friendsStorage) {
+    public UserServiceImpl(@Qualifier("userDbStorage") UserStorage userStorage, FriendsStorage friendsStorage,
+                           @Qualifier("filmDbStorage") FilmStorage filmStorage, GenreStorage genreStorage) {
         this.userStorage = userStorage;
         this.friendsStorage = friendsStorage;
+        this.filmStorage = filmStorage;
+        this.genreStorage = genreStorage;
     }
 
     @Override
