@@ -14,7 +14,7 @@ public interface ReviewService {
 
     Review findReviewById(long id);
 
-    void addLikeToReview (long reviewId, long userId);
+    void addLikeToReview(long reviewId, long userId);
 
     void  addDislikeToReview(long reviewId, long userId);
 
