@@ -38,6 +38,8 @@ public class Film {
 
     Set<Genre> genres = new HashSet<>();
 
+    Set<Director> directors;
+
     Mpa mpa;
 
     Long rate;

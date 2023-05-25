@@ -14,10 +14,18 @@ public interface FilmStorage {
 
     Film findFilmById(Long id);
 
-    boolean isNotExistsFilm(Long id);
-
     void delete(Film film);
 
     void deleteFilmById(Long id);
+
+    List<Long> findFilmsByDirectorSorted(int directorId, String sortBy);
+
+    List<Long> findFilmsByDirectorSortedByYear(int directorId);
+
+    List<Long> findFilmsByDirectorSortedByLikes(int directorId);
+
+    List<Long> findFilmsByDirector(int directorId);
+
+    boolean isNotExistsFilm(Long id);
 
 }
