@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.impl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
@@ -10,8 +11,6 @@ import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 @Slf4j
@@ -20,6 +19,7 @@ import java.util.List;
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final RowMapper<User> userMapper;
 
     @Override
     public User save(User user) {
@@ -47,13 +47,13 @@ public class UserDbStorage implements UserStorage {
     @Override
     public List<User> findAllUsers() {
         String sqlQuery = "SELECT user_id, login, name, birthday, email FROM USERS";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToUser);
+        return jdbcTemplate.query(sqlQuery, userMapper);
     }
 
     @Override
     public User findUserById(Long id) {
         String sqlQuery = "SELECT user_id, login, name, birthday, email FROM USERS WHERE user_id = ?";
-        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
+        return jdbcTemplate.queryForObject(sqlQuery, userMapper, id);
     }
 
     @Override
@@ -79,16 +79,6 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "DELETE FROM USERS WHERE user_id = ?";
         jdbcTemplate.update(sqlQuery, id);
         log.info("Пользователь удален: id={}", id);
-    }
-
-    private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
-        return User.builder()
-                .id(resultSet.getLong("user_id"))
-                .login(resultSet.getString("login"))
-                .name(resultSet.getString("name"))
-                .birthday(resultSet.getDate("birthday").toLocalDate())
-                .email(resultSet.getString("email"))
-                .build();
     }
 
 }
