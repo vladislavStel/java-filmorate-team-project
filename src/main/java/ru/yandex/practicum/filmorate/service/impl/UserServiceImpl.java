@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -19,11 +21,14 @@ public class UserServiceImpl implements UserService {
 
     private final UserStorage userStorage;
     private final FriendsStorage friendsStorage;
+    private final FilmStorage filmStorage;
 
     @Autowired
-    public UserServiceImpl(@Qualifier("userDbStorage") UserStorage userStorage, FriendsStorage friendsStorage) {
+    public UserServiceImpl(@Qualifier("userDbStorage") UserStorage userStorage, FriendsStorage friendsStorage,
+                           @Qualifier("filmDbStorage") FilmStorage filmStorage) {
         this.userStorage = userStorage;
         this.friendsStorage = friendsStorage;
+        this.filmStorage = filmStorage;
     }
 
     @Override
@@ -100,6 +105,13 @@ public class UserServiceImpl implements UserService {
         List<User> list = getListFriends(id);
         list.retainAll(getListFriends(otherID));
         return list;
+    }
+
+    @Override
+    public List<Film> getRecommendations(Long id) {
+        List<Film> recommendedFilms = filmStorage.getRecommendations(id);
+
+        return recommendedFilms;
     }
 
 }

@@ -36,4 +36,6 @@ public interface FilmStorage {
 
     List<Film> findPopular(Long count);
 
+    List<Film> getRecommendations(Long id);
+
 }

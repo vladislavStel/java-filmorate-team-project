@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
@@ -19,6 +22,7 @@ import java.util.List;
 @Repository
 public class FilmDbStorage implements FilmStorage {
 
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Film> filmMapper;
 
@@ -149,6 +153,33 @@ public class FilmDbStorage implements FilmStorage {
                 "ORDER BY COUNT(ll.user_id) DESC " +
                 "LIMIT ?";
         return jdbcTemplate.query(sqlQuery, filmMapper, count);
+    }
+
+    @Override
+    public List<Film> getRecommendations(Long id) {
+        String sqlQuery = "SELECT FILM.*, m.* " +
+                "FROM FILM " +
+                "JOIN MPA m ON m.MPA_ID = FILM.MPA_ID " +
+                "WHERE FILM.FILM_ID IN (SELECT DISTINCT FILM_ID " +
+                "FROM LIKE_LIST " +
+                "WHERE USER_ID IN (SELECT USER_ID " +
+                "FROM (SELECT USER_ID, COUNT(*) matches " +
+                "FROM LIKE_LIST " +
+                "WHERE NOT USER_ID = :userId " +
+                "AND FILM_ID IN (SELECT FILM_ID " +
+                "FROM LIKE_LIST " +
+                "WHERE USER_ID = :userId) " +
+                "GROUP BY USER_ID " +
+                "ORDER BY COUNT(*) DESC) " +
+                "GROUP BY USER_ID " +
+                "HAVING matches = MAX(matches)) " +
+                "AND FILM_ID NOT IN (SELECT FILM_ID " +
+                "FROM LIKE_LIST " +
+                "WHERE USER_ID = :userId));";
+
+        SqlParameterSource parameters = new MapSqlParameterSource("userId", id);
+
+        return namedParameterJdbcTemplate.query(sqlQuery, parameters, filmMapper);
     }
 
     @Override
