@@ -21,16 +21,11 @@ public class UserServiceImpl implements UserService {
 
     private final UserStorage userStorage;
     private final FriendsStorage friendsStorage;
-    private final FilmStorage filmStorage;
-    private final GenreStorage genreStorage;
 
     @Autowired
-    public UserServiceImpl(@Qualifier("userDbStorage") UserStorage userStorage, FriendsStorage friendsStorage,
-                           @Qualifier("filmDbStorage") FilmStorage filmStorage, GenreStorage genreStorage) {
+    public UserServiceImpl(@Qualifier("userDbStorage") UserStorage userStorage, FriendsStorage friendsStorage) {
         this.userStorage = userStorage;
         this.friendsStorage = friendsStorage;
-        this.filmStorage = filmStorage;
-        this.genreStorage = genreStorage;
     }
 
     @Override
