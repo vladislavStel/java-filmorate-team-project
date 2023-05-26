@@ -31,6 +31,7 @@ public class FilmController {
 
     @GetMapping("/popular")
     public List<Film> getPopular(@RequestParam(defaultValue = "10")
+                                      @Validated
                                       @Positive
                                       Long count,
                                       @RequestParam(defaultValue = "0")
