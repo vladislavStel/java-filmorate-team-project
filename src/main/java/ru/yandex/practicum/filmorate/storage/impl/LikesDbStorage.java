@@ -6,8 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.storage.LikesStorage;
 
-import java.util.List;
-
 @Slf4j
 @Repository
 @AllArgsConstructor
