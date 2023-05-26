@@ -25,10 +25,4 @@ public class LikesDbStorage implements LikesStorage {
         log.info("Пользователь id={} удалил лайк у фильма id={}", userId, filmId);
     }
 
-    @Override
-    public List<Long> findPopular(Long count) {
-        String sql = "SELECT film_id FROM LIKE_LIST GROUP BY film_id ORDER BY COUNT(user_id) DESC LIMIT ?";
-        return jdbcTemplate.queryForList(sql, Long.class, count);
-    }
-
 }
