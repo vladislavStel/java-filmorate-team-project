@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -29,7 +30,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopular(@Valid @RequestParam(defaultValue = "10")
+    public List<Film> getPopular(@RequestParam(defaultValue = "10")
                                       @Positive
                                       Long count,
                                       @RequestParam(defaultValue = "0")
