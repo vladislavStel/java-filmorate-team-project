@@ -85,7 +85,7 @@ class FilmControllerTest {
 
         Film film1 = filmBuilder.id(1L).name("Film name1").build();
         Film film2 = filmBuilder.id(2L).name("Film name2").build();
-        when(filmService.getPopular(2L, 2L, 2000)).thenReturn(List.of(film1, film2));
+        when(filmService.getPopular(2L, 2, 2000)).thenReturn(List.of(film1, film2));
 
         mockMvc.perform(get(url + "/popular?count=2&year=2000&genreId=2"))
                 .andDo(print())
