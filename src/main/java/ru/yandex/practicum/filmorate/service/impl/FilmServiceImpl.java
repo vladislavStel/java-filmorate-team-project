@@ -2,11 +2,14 @@ package ru.yandex.practicum.filmorate.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.*;
 
+import java.time.Year;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -84,17 +87,21 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<Film> getPopular(Long count, Long genreId, Integer year) {
+    public List<Film> getPopular(Long count, int genreId, Integer year) {
         if (genreId != 0 && year != 0) {
-            return filmStorage.getPopularFilmSortedByGenreAndYear(count, genreId, year);
+            return filmStorage.findPopularFilmSortedByGenreAndYear(count, genreId, year);
         }
         if (genreId != 0 && year == 0) {
-            return filmStorage.getPopularFilmSortedByGenre(count, genreId);
+            return filmStorage.findPopularFilmSortedByGenre(count, genreId);
         }
         if (genreId == 0 && year != 0) {
-            return filmStorage.getPopularFilmSortedByYear(count, year);
+            return filmStorage.findPopularFilmSortedByYear(count, year);
         }
-        return filmStorage.getPopular(count);
+        if (year > Year.now().getValue()) {
+            throw new ValidationException("Выбраный год не был найден");
+        }
+
+        return filmStorage.findPopular(count);
     }
 
     @Override
