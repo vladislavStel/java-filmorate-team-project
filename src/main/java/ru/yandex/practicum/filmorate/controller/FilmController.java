@@ -8,7 +8,10 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+<<<<<<< HEAD
 import javax.validation.constraints.PositiveOrZero;
+=======
+>>>>>>> f68a3f3 (fix: fix spaces and other issues)
 import java.util.List;
 
 @RestController
@@ -76,8 +79,9 @@ public class FilmController {
     }
 
     @GetMapping("/common")
-    public Collection<Film> getCommonFilmsWithFriend(@RequestParam Long userId,
-                                                     @RequestParam Long friendId) {
-        return filmService.getCommonFilms(userId,friendId);
+    public List<Film> getCommonFilmsWithFriend(@RequestParam @Positive Long userId,
+                                               @RequestParam @Positive Long friendId) {
+        return filmService.getCommonFilms(userId, friendId);
     }
+
 }
