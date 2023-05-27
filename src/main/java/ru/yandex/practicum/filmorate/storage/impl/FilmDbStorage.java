@@ -155,11 +155,11 @@ public class FilmDbStorage implements FilmStorage {
     public List<Long> findCommonFilmsWithFriend(Long userId, Long friendId) {
         String sql = "SELECT * " +
                 "FROM LIKE_LIST " +
-                "JOIN LIKE_LIST LIKES ON LIKES.FILM_ID = LIKE_LIST.FILM_ID " +
-                "JOIN FILM on FILM.FILM_ID = LIKES.FILM_ID " +
-                "WHERE LIKES.USER_ID = ? AND LIKE_LIST.USER_ID = ?";
-        log.info("Получен список общих фильмов user: id={} с friend: id={}", userId,friendId);
-            return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("film_id"),userId,friendId);
+                "JOIN LIKE_LIST LIKES ON LIKES.film_id = LIKE_LIST.film_id " +
+                "JOIN FILM on FILM.film_id = LIKES.film_id " +
+                "WHERE LIKES.user_id = ? AND LIKE_LIST.user_id = ?";
+        log.info("Получен список общих фильмов user: id={} с friend: id={}", userId, friendId);
+            return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("film_id"), userId, friendId);
     }
 
     @Override
