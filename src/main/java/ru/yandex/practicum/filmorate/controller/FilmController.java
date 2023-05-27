@@ -7,7 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.util.Collection;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
@@ -69,8 +69,9 @@ public class FilmController {
     }
 
     @GetMapping("/common")
-    public Collection<Film> getCommonFilmsWithFriend(@RequestParam Long userId,
-                                                     @RequestParam Long friendId) {
-        return filmService.getCommonFilms(userId,friendId);
+    public List<Film> getCommonFilmsWithFriend(@RequestParam @Positive Long userId,
+                                               @RequestParam @Positive Long friendId) {
+        return filmService.getCommonFilms(userId, friendId);
     }
+
 }
