@@ -31,13 +31,6 @@ public class ErrorHandler {
         return new ErrorResponse(HttpStatus.BAD_REQUEST, "Неверное значение поля - count", e.getCount());
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handelReviewException(IncorrectFieldReviewException e) {
-        log.error(e.getMessage(), e);
-        return new ErrorResponse(HttpStatus.NOT_FOUND,"Укажите верные данные USER_ID или FILM_ID");
-    }
-
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationExceptions(Exception e) {
