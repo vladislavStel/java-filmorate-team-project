@@ -109,9 +109,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<Film> getRecommendations(Long id) {
-        List<Film> recommendedFilms = filmStorage.getRecommendations(id);
-
-        return recommendedFilms;
+        if (userStorage.isNotExistsUser(id)) {
+            throw new ObjectNotFoundException(String.format("Пользователь id=%d ", id));
+        }
+        return filmStorage.getRecommendations(id);
     }
 
 }
