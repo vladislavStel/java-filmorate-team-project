@@ -201,7 +201,7 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN LIKE_LIST AS ll ON f.film_id = ll.film_id " +
                 "LEFT JOIN DIRECTOR_LIST AS dl ON f.film_id = dl.film_id " +
                 "LEFT JOIN DIRECTOR AS d ON dl.director_id = d.director_id " +
-                "WHERE LOCATE(UPPER(?), UPPER(f.name))" +
+                "WHERE LOCATE(UPPER(?), UPPER(f.name)) " +
                 "GROUP BY f.film_id, gl.genre_id ";
 
         return jdbcTemplate.query(sqlQuery, filmMapper, query);
@@ -215,7 +215,7 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN LIKE_LIST AS ll ON f.film_id = ll.film_id " +
                 "LEFT JOIN DIRECTOR_LIST AS dl ON f.film_id = dl.film_id " +
                 "LEFT JOIN DIRECTOR AS d ON dl.director_id = d.director_id " +
-                "WHERE LOCATE(UPPER(?), UPPER(d.name))" +
+                "WHERE LOCATE(UPPER(?), UPPER(d.name)) " +
                 "GROUP BY f.film_id ";
 
         return jdbcTemplate.query(sqlQuery, filmMapper, query);
