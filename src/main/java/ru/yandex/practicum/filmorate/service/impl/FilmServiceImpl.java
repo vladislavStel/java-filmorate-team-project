@@ -98,7 +98,6 @@ public class FilmServiceImpl implements FilmService {
         if (directorStorage.isNotExistsDirector(directorId)) {
             throw new ObjectNotFoundException(String.format("Не найден режиссер: id=%d", directorId));
         }
-
         return filmStorage
                 .findFilmsByDirectorSorted(directorId, sortBy)
                 .stream()
