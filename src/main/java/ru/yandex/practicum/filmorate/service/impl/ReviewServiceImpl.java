@@ -23,7 +23,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Review addReview(Review review) {
-        if(filmStorage.isNotExistsFilm(review.getFilmId()) || userStorage.isNotExistsUser(review.getUserId())) {
+        if (filmStorage.isNotExistsFilm(review.getFilmId()) || userStorage.isNotExistsUser(review.getUserId())) {
             throw new ObjectNotFoundException("Ошибка заполения поля USER_ID или FILM_ID");
         }
         return reviewStorage.save(review);
@@ -31,7 +31,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Review updateReview(Review review) {
-        if(reviewStorage.isNotExistsReview(review.getReviewId())) {
+        if (reviewStorage.isNotExistsReview(review.getReviewId())) {
             throw new ObjectNotFoundException(String.format("Отзыв не найден: id=%d", review.getReviewId()));
         }
         return reviewStorage.update(review);
@@ -49,7 +49,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Review findReviewById(long id) {
-        if(reviewStorage.isNotExistsReview(id)) {
+        if (reviewStorage.isNotExistsReview(id)) {
             throw new ObjectNotFoundException(String.format("Отзыв не найден: id=%d", id));
         }
         return reviewStorage.findById(id);
