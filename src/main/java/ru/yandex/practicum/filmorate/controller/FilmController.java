@@ -1,15 +1,18 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
+@Validated
 @AllArgsConstructor
 @RequestMapping("/films")
 public class FilmController {
@@ -27,17 +30,28 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopular(@RequestParam(defaultValue = "10", required = false) Long count) {
-        if (count < 0) {
-            throw new IncorrectParameterException(count);
-        }
-        return filmService.getPopular(count);
+    public List<Film> getPopular(@RequestParam(defaultValue = "10")
+                                 @Positive
+                                 Long count,
+                                 @RequestParam(defaultValue = "0")
+                                 @PositiveOrZero
+                                 int genreId,
+                                 @RequestParam(defaultValue = "0")
+                                 @PositiveOrZero
+                                 Integer year) {
+        return filmService.getPopular(count, genreId, year);
     }
 
     @GetMapping("/director/{directorId}")
     public List<Film> getFilmsSortByDirector(@Valid @PathVariable("directorId") int directorId,
                                              @RequestParam(value = "sortBy", required = false) String sortBy) {
         return filmService.getFilmsSorted(directorId, sortBy);
+    }
+
+    @GetMapping("/search")
+    public List<Film> getFilmsByDirectorAndTitle(@RequestParam(name = "query") String query,
+                                                 @RequestParam(name = "by", required = false) String by) {
+        return filmService.getFilmsByDirectorAndTitle(query, by);
     }
 
     @PostMapping
@@ -65,12 +79,6 @@ public class FilmController {
     @DeleteMapping("/{id}")
     public void deleteFilmById(@PathVariable("id") Long filmID) {
         filmService.removeFilmById(filmID);
-    }
-
-    @GetMapping("/common")
-    public List<Film> getCommonFilmsWithFriend(@RequestParam @Positive Long userId,
-                                               @RequestParam @Positive Long friendId) {
-        return filmService.getCommonFilms(userId, friendId);
     }
 
 }

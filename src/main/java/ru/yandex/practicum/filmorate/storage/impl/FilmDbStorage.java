@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.impl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
@@ -19,6 +20,7 @@ import java.util.List;
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final RowMapper<Film> filmMapper;
 
     @Override
     public Film save(Film film) {
@@ -80,6 +82,12 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public boolean isNotExistsFilm(Long id) {
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT * FROM FILM WHERE film_id = ?", id);
+        return !filmRows.next();
+    }
+
+    @Override
     public void delete(Film film) {
         if (isNotExistsFilm(film.getId())) {
             throw new ObjectNotFoundException(String.format("Фильм не найден: id=%d", film.getId()));
@@ -98,15 +106,49 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Long> findFilmsByDirectorSorted(int directorId, String sortBy) {
-        switch (sortBy) {
-            case ("year"):
-                return findFilmsByDirectorSortedByYear(directorId);
-            case ("likes"):
-                return findFilmsByDirectorSortedByLikes(directorId);
-            default:
-                return findFilmsByDirector(directorId);
-        }
+    public List<Film> findPopularFilmSortedByGenreAndYear(Long count, int genreId, Integer year) {
+        String sqlQuery = "SELECT f.* FROM film f " +
+                "LEFT JOIN like_list ll on f.film_id = ll.film_id " +
+                "LEFT JOIN genre_list gl ON f.film_id = gl.film_id " +
+                "WHERE gl.genre_id = ? AND year(f.releaseDate) = ? " +
+                "GROUP BY  f.film_id, gl.genre_id " +
+                "ORDER BY COUNT(ll.user_id) DESC " +
+                "LIMIT ?";
+        return jdbcTemplate.query(sqlQuery, filmMapper, genreId, year, count);
+    }
+
+    @Override
+    public List<Film> findPopularFilmSortedByGenre(Long count, int genreId) {
+        String sqlQuery = "SELECT f.* FROM film f " +
+                "LEFT JOIN like_list ll on f.film_id = ll.film_id " +
+                "LEFT JOIN genre_list gl ON f.film_id = gl.film_id " +
+                "WHERE gl.genre_id = ? " +
+                "GROUP BY  f.film_id, gl.genre_id " +
+                "ORDER BY COUNT(ll.user_id) DESC " +
+                "LIMIT ?";
+        return jdbcTemplate.query(sqlQuery, filmMapper, genreId, count);
+    }
+
+    @Override
+    public List<Film> findPopularFilmSortedByYear(Long count, Integer year) {
+        String sqlQuery = "SELECT f.* FROM film f " +
+                "LEFT JOIN like_list ll on f.film_id = ll.film_id " +
+                "WHERE year(f.releaseDate) = ? " +
+                "GROUP BY  f.film_id " +
+                "ORDER BY COUNT(ll.user_id) DESC " +
+                "LIMIT ?";
+
+        return jdbcTemplate.query(sqlQuery, filmMapper, year, count);
+    }
+
+    @Override
+    public List<Film> findPopular(Long count) {
+        String sqlQuery = "SELECT f.* FROM film f " +
+                "LEFT JOIN like_list ll on f.film_id = ll.film_id " +
+                "GROUP BY  f.film_id " +
+                "ORDER BY COUNT(ll.user_id) DESC " +
+                "LIMIT ?";
+        return jdbcTemplate.query(sqlQuery, filmMapper, count);
     }
 
     @Override
@@ -138,7 +180,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Long> findFilmsByDirector(int directorId) {
+    public List<Long> findFilmsByDirectorById(int directorId) {
         String sql =
                 "SELECT FILM.film_id " +
                         "FROM FILM " +
@@ -152,20 +194,30 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Long> findCommonFilmsWithFriend(Long userId, Long friendId) {
-        String sql = "SELECT * " +
-                "FROM LIKE_LIST " +
-                "JOIN LIKE_LIST LIKES ON LIKES.film_id = LIKE_LIST.film_id " +
-                "JOIN FILM on FILM.film_id = LIKES.film_id " +
-                "WHERE LIKES.user_id = ? AND LIKE_LIST.user_id = ?";
-        log.info("Получен список общих фильмов user: id={} с friend: id={}", userId, friendId);
-            return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("film_id"), userId, friendId);
+    public List<Film> findFilmsByTitle(String query) {
+        String sqlQuery = "SELECT * FROM FILM AS f " +
+                "LEFT JOIN MPA AS m ON f.mpa_id = m.mpa_id " +
+                "LEFT JOIN GENRE_LIST AS gl ON f.film_id = gl.film_id " +
+                "LEFT JOIN LIKE_LIST AS ll ON f.film_id = ll.film_id " +
+                "LEFT JOIN DIRECTOR_LIST AS dl ON f.film_id = dl.film_id " +
+                "LEFT JOIN DIRECTOR AS d ON dl.director_id = d.director_id " +
+                "WHERE LOCATE(UPPER(?), UPPER(f.name))" +
+                "GROUP BY f.film_id ";
+
+        return jdbcTemplate.query(sqlQuery, filmMapper, query);
     }
 
     @Override
-    public boolean isNotExistsFilm(Long id) {
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT * FROM FILM WHERE film_id = ?", id);
-        return !filmRows.next();
-    }
+    public List<Film> findFilmsByDirector(String query) {
+        String sqlQuery = "SELECT * FROM FILM AS f " +
+                "LEFT JOIN MPA AS m ON f.mpa_id = m.mpa_id " +
+                "LEFT JOIN GENRE_LIST AS gl ON f.film_id = gl.film_id " +
+                "LEFT JOIN LIKE_LIST AS ll ON f.film_id = ll.film_id " +
+                "LEFT JOIN DIRECTOR_LIST AS dl ON f.film_id = dl.film_id " +
+                "LEFT JOIN DIRECTOR AS d ON dl.director_id = d.director_id " +
+                "WHERE LOCATE(UPPER(?), UPPER(d.name))" +
+                "GROUP BY f.film_id ";
 
+        return jdbcTemplate.query(sqlQuery, filmMapper, query);
+    }
 }
