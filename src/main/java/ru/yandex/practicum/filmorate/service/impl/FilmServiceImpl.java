@@ -1,4 +1,5 @@
 package ru.yandex.practicum.filmorate.service.impl;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
@@ -15,16 +16,19 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class FilmServiceImpl implements FilmService {
+
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
     private final LikesStorage likesStorage;
     private final GenreStorage genreStorage;
     private final DirectorStorage directorStorage;
     private final MpaStorage mpaStorage;
+
     @Override
     public List<Film> getAllFilms() {
         return filmStorage.findAllFilms().stream().map(this::getFilmByID).collect(Collectors.toList());
     }
+
     @Override
     public Film addFilm(Film film) {
         filmStorage.save(film);
@@ -32,6 +36,7 @@ public class FilmServiceImpl implements FilmService {
         directorStorage.saveDirectorByFilm(film);
         return film;
     }
+
     @Override
     public Film updateFilm(Film film) {
         filmStorage.update(film);
@@ -41,6 +46,7 @@ public class FilmServiceImpl implements FilmService {
         directorStorage.saveDirectorByFilm(film);
         return getFilmByID(film.getId());
     }
+
     @Override
     public Film getFilmByID(Long id) {
         if (filmStorage.isNotExistsFilm(id)) {
@@ -53,6 +59,7 @@ public class FilmServiceImpl implements FilmService {
         film.setDirectors(directorStorage.findFilmDirectors(id));
         return film;
     }
+
     @Override
     public void addLike(Long filmID, Long userID) {
         if (filmStorage.isNotExistsFilm(filmID) || userStorage.isNotExistsUser(userID)) {
@@ -61,6 +68,7 @@ public class FilmServiceImpl implements FilmService {
         }
         likesStorage.saveLike(filmID, userID);
     }
+
     @Override
     public void removeLike(Long filmID, Long userID) {
         if (filmStorage.isNotExistsFilm(filmID) || userStorage.isNotExistsUser(userID)) {
@@ -69,6 +77,7 @@ public class FilmServiceImpl implements FilmService {
         }
         likesStorage.deleteLike(filmID, userID);
     }
+
     @Override
     public void removeFilmById(Long filmId) {
         if (filmStorage.isNotExistsFilm(filmId)) {
@@ -76,6 +85,7 @@ public class FilmServiceImpl implements FilmService {
         }
         filmStorage.deleteFilmById(filmId);
     }
+
     @Override
     public List<Film> getPopular(Long count, int genreId, Integer year) {
         if (genreId != 0 && year != 0) {
@@ -92,6 +102,7 @@ public class FilmServiceImpl implements FilmService {
         }
         return filmStorage.findPopular(count);
     }
+
     @Override
     public List<Film> getFilmsSorted(int directorId, String sortBy) {
         if (directorStorage.isNotExistsDirector(directorId)) {
