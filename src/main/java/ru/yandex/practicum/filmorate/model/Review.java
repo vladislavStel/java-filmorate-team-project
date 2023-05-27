@@ -5,15 +5,19 @@ import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Data
 @Builder
 @AllArgsConstructor
-@RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Review {
 
-    long reviewId;
+    @Positive
+    Long reviewId;
 
     @NotBlank
     String content;
@@ -29,5 +33,15 @@ public class Review {
 
     @NotNull
     int useful;
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("content", content);
+        values.put("is_positive", isPositive);
+        values.put("user_id", userId);
+        values.put("film_id", filmId);
+        values.put("useful", useful);
+        return values;
+    }
 
 }

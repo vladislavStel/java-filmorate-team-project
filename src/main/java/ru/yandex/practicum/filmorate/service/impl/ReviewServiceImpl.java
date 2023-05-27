@@ -1,16 +1,18 @@
 package ru.yandex.practicum.filmorate.service.impl;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.IncorrectFieldReviewException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import java.util.Collection;
 
+import java.util.List;
+
+@Slf4j
 @Service
 @AllArgsConstructor
 public class ReviewServiceImpl implements ReviewService {
@@ -21,17 +23,17 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Review addReview(Review review) {
-        if (review.getUserId() == null || review.getFilmId() == null) {
-            throw new ValidationException("Не заданно поле отзыва");
+        if(filmStorage.isNotExistsFilm(review.getFilmId()) || userStorage.isNotExistsUser(review.getUserId())) {
+            throw new ObjectNotFoundException("Ошибка заполения поля USER_ID или FILM_ID");
         }
-        if (filmStorage.isNotExistsFilm(review.getFilmId()) || userStorage.isNotExistsUser(review.getUserId())) {
-            throw new IncorrectFieldReviewException("Ошибка заполения поля USER_ID или FILM_ID");
-        }
-        return reviewStorage.saveReview(review);
+        return reviewStorage.save(review);
     }
 
     @Override
-    public Review upadateReview(Review review) {
+    public Review updateReview(Review review) {
+        if(reviewStorage.isNotExistsReview(review.getReviewId())){
+            throw new ObjectNotFoundException(String.format("Отзыв не найден: id=%d", review.getReviewId()));
+        }
         return reviewStorage.update(review);
     }
 
@@ -41,12 +43,15 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Collection<Review> getAllReviewsByFilmId(Long reviewId, Integer count) {
-        return reviewStorage.getAllReviewsByFilmId(reviewId, count);
+    public List<Review> getAllReviewsByFilmId(Long reviewId, Integer count) {
+        return reviewStorage.findAllReviewByFilmId(reviewId, count);
     }
 
     @Override
     public Review findReviewById(long id) {
+        if(reviewStorage.isNotExistsReview(id)){
+            throw new ObjectNotFoundException(String.format("Отзыв не найден: id=%d", id));
+        }
         return reviewStorage.findById(id);
     }
 
@@ -69,4 +74,5 @@ public class ReviewServiceImpl implements ReviewService {
     public void removeDislike(long reviewId, long userId) {
         reviewStorage.removeDislike(reviewId, userId);
     }
+
 }
