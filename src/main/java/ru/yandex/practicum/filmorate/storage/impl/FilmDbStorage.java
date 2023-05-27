@@ -198,9 +198,6 @@ public class FilmDbStorage implements FilmStorage {
         String sqlQuery = "SELECT * FROM FILM AS f " +
                 "LEFT JOIN MPA AS m ON f.mpa_id = m.mpa_id " +
                 "LEFT JOIN GENRE_LIST AS gl ON f.film_id = gl.film_id " +
-                "LEFT JOIN LIKE_LIST AS ll ON f.film_id = ll.film_id " +
-                "LEFT JOIN DIRECTOR_LIST AS dl ON f.film_id = dl.film_id " +
-                "LEFT JOIN DIRECTOR AS d ON dl.director_id = d.director_id " +
                 "WHERE LOCATE(UPPER(?), UPPER(f.name)) " +
                 "GROUP BY f.film_id, gl.genre_id ";
 
@@ -210,8 +207,6 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> findFilmsByDirector(String query) {
         String sqlQuery = "SELECT * FROM FILM AS f " +
-                "LEFT JOIN MPA AS m ON f.mpa_id = m.mpa_id " +
-                "LEFT JOIN GENRE_LIST AS gl ON f.film_id = gl.film_id " +
                 "LEFT JOIN LIKE_LIST AS ll ON f.film_id = ll.film_id " +
                 "LEFT JOIN DIRECTOR_LIST AS dl ON f.film_id = dl.film_id " +
                 "LEFT JOIN DIRECTOR AS d ON dl.director_id = d.director_id " +
