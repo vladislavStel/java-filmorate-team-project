@@ -54,7 +54,7 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public Review findById(long reviewId) {
         String sqlFindReviewById = "SELECT * FROM REVIEW WHERE review_id = ?";
-        return jdbcTemplate.queryForObject(sqlFindReviewById, reviewMapper , reviewId);
+        return jdbcTemplate.queryForObject(sqlFindReviewById, reviewMapper, reviewId);
     }
 
     @Override
