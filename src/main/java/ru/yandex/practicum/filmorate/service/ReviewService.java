@@ -1,14 +1,13 @@
 package ru.yandex.practicum.filmorate.service;
 
 import ru.yandex.practicum.filmorate.model.Review;
-
-import java.util.Collection;
+import java.util.List;
 
 public interface ReviewService {
 
     Review addReview(Review review);
 
-    Review upadateReview(Review review);
+    Review updateReview(Review review);
 
     void removeReview(long reviewId);
 
@@ -22,6 +21,6 @@ public interface ReviewService {
 
     void  removeDislike(long reviewId, long userId);
 
-    Collection<Review> getAllReviewsByFilmId(Long filmId, Integer count);
+    List<Review> getAllReviewsByFilmId(Long filmId, Integer count);
 
 }
