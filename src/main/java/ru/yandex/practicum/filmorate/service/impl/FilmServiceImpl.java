@@ -118,8 +118,8 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public Collection<Film> getCommonFilms(Long userId, Long friendId) {
-        return filmStorage.findCommonFilmsWithFriend(userId,friendId)
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        return filmStorage.findCommonFilmsWithFriend(userId, friendId)
                 .stream()
                 .map(this::getFilmByID)
                 .collect(Collectors.toList());
