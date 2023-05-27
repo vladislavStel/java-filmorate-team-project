@@ -30,14 +30,14 @@ public class FilmController {
 
     @GetMapping("/popular")
     public List<Film> getPopular(@RequestParam(defaultValue = "10")
-                                      @Positive
-                                      Long count,
-                                      @RequestParam(defaultValue = "0")
-                                      @PositiveOrZero
-                                      int genreId,
-                                      @RequestParam(defaultValue = "0")
-                                      @PositiveOrZero
-                                      Integer year) {
+                                 @Positive
+                                 Long count,
+                                 @RequestParam(defaultValue = "0")
+                                 @PositiveOrZero
+                                 int genreId,
+                                 @RequestParam(defaultValue = "0")
+                                 @PositiveOrZero
+                                 Integer year) {
         return filmService.getPopular(count, genreId, year);
     }
 
@@ -45,6 +45,12 @@ public class FilmController {
     public List<Film> getFilmsSortByDirector(@Valid @PathVariable("directorId") int directorId,
                                              @RequestParam(value = "sortBy", required = false) String sortBy) {
         return filmService.getFilmsSorted(directorId, sortBy);
+    }
+
+    @GetMapping("/search")
+    public List<Film> getFilmsByDirectorAndTitle(@RequestParam(name = "query") String query,
+                                                 @RequestParam(name = "by", required = false) String by) {
+        return filmService.getFilmsByDirectorAndTitle(query, by);
     }
 
     @PostMapping
