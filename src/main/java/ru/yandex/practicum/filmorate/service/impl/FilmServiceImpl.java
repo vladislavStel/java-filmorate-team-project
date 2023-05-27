@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.*;
 
-import javax.validation.constraints.NotBlank;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,7 +106,6 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Film> getFilmsSorted(int directorId, String sortBy) {
-
         if (directorStorage.isNotExistsDirector(directorId)) {
             throw new ObjectNotFoundException(String.format("Не найден режиссер: id=%d", directorId));
         }
@@ -132,7 +130,6 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Film> getFilmsByDirectorAndTitle( String query, String by) {
-
         List<Film> listFilms = new ArrayList<>();
         if (by.contains("director")) {
             listFilms.addAll(filmStorage.findFilmsByDirector(query));
