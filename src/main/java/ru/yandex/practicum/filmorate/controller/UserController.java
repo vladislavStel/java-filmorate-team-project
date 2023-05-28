@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -61,6 +62,11 @@ public class UserController {
     @DeleteMapping("/{id}")
     public void deleteUserById(@PathVariable("id") Long userID) {
         userService.removeUserById(userID);
+    }
+
+    @GetMapping("/{id}/feed")
+    public List<Event> getFeed(@PathVariable("id") Long id) {
+        return userService.getFeed(id);
     }
 
 }
