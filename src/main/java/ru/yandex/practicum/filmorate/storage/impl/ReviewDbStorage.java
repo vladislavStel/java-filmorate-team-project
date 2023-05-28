@@ -43,7 +43,8 @@ public class ReviewDbStorage implements ReviewStorage {
                 review.getIsPositive(),
                 review.getReviewId());
         log.info("Данные отзыва обновлены: reviewId={}", review.getReviewId());
-        feedDbStorage.saveEvent(review.getUserId(), "REVIEW", "UPDATE", review.getReviewId());
+        feedDbStorage.saveEvent(findById(review.getReviewId()).getUserId(), "REVIEW", "UPDATE",
+                review.getReviewId());
         return findById(review.getReviewId());
     }
 
