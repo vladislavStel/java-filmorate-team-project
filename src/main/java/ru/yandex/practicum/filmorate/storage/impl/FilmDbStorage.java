@@ -192,6 +192,7 @@ public class FilmDbStorage implements FilmStorage {
 
         return jdbcTemplate.query(sql, ((rs, rowNum) -> rs.getLong("film_id")), directorId);
     }
+
     @Override
     public List<Film> findFilmsByTitle(String query) {
         String sqlQuery = "SELECT * FROM FILM AS f " +
@@ -202,6 +203,7 @@ public class FilmDbStorage implements FilmStorage {
 
         return jdbcTemplate.query(sqlQuery, filmMapper, query);
     }
+
     @Override
     public List<Film> findFilmsByDirector(String query) {
         String sqlQuery = "SELECT * FROM FILM AS f " +
