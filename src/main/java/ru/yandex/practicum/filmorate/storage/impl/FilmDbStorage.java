@@ -214,4 +214,16 @@ public class FilmDbStorage implements FilmStorage {
                 "GROUP BY f.film_id ";
         return jdbcTemplate.query(sqlQuery, filmMapper, query);
     }
+
+    @Override
+    public List<Long> findCommonFilmsWithFriend(Long userId, Long friendId) {
+        String sql = "SELECT * " +
+                "FROM LIKE_LIST " +
+                "JOIN LIKE_LIST LIKES ON LIKES.film_id = LIKE_LIST.film_id " +
+                "JOIN FILM on FILM.film_id = LIKES.film_id " +
+                "WHERE LIKES.user_id = ? AND LIKE_LIST.user_id = ?";
+        log.info("Получен список общих фильмов user: id={} с friend: id={}", userId, friendId);
+            return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("film_id"), userId, friendId);
+    }
+
 }
