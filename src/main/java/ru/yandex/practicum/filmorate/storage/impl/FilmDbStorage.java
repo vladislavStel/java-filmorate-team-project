@@ -126,7 +126,7 @@ public class FilmDbStorage implements FilmStorage {
                 "GROUP BY  f.film_id, gl.genre_id " +
                 "ORDER BY COUNT(ll.user_id) DESC " +
                 "LIMIT ?";
-        return jdbcTemplate.query(sqlQuery, filmMapper, genreId, count);
+        return jdbcTemplate.query(sqlQuery,filmMapper, genreId, count);
     }
 
     @Override
@@ -149,6 +149,18 @@ public class FilmDbStorage implements FilmStorage {
                 "ORDER BY COUNT(ll.user_id) DESC " +
                 "LIMIT ?";
         return jdbcTemplate.query(sqlQuery, filmMapper, count);
+    }
+
+    @Override
+    public List<Long> findFilmsByDirectorSorted(int directorId, String sortBy) {
+        switch (sortBy) {
+            case ("year"):
+                return findFilmsByDirectorSortedByYear(directorId);
+            case ("likes"):
+                return findFilmsByDirectorSortedByLikes(directorId);
+            default:
+                return findFilmsByDirector(directorId);
+        }
     }
 
     @Override
@@ -180,7 +192,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Long> findFilmsByDirectorById(int directorId) {
+    public List<Long> findFilmsByDirector(int directorId) {
         String sql =
                 "SELECT FILM.film_id " +
                         "FROM FILM " +
@@ -193,26 +205,4 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sql, ((rs, rowNum) -> rs.getLong("film_id")), directorId);
     }
 
-    @Override
-    public List<Film> findFilmsByTitle(String query) {
-        String sqlQuery = "SELECT * FROM FILM AS f " +
-                "LEFT JOIN MPA AS m ON f.mpa_id = m.mpa_id " +
-                "LEFT JOIN GENRE_LIST AS gl ON f.film_id = gl.film_id " +
-                "WHERE LOCATE(UPPER(?), UPPER(f.name)) " +
-                "GROUP BY f.film_id, gl.genre_id ";
-
-        return jdbcTemplate.query(sqlQuery, filmMapper, query);
-    }
-
-    @Override
-    public List<Film> findFilmsByDirector(String query) {
-        String sqlQuery = "SELECT * FROM FILM AS f " +
-                "LEFT JOIN LIKE_LIST AS ll ON f.film_id = ll.film_id " +
-                "LEFT JOIN DIRECTOR_LIST AS dl ON f.film_id = dl.film_id " +
-                "LEFT JOIN DIRECTOR AS d ON dl.director_id = d.director_id " +
-                "WHERE LOCATE(UPPER(?), UPPER(d.name)) " +
-                "GROUP BY f.film_id ";
-
-        return jdbcTemplate.query(sqlQuery, filmMapper, query);
-    }
 }
