@@ -24,6 +24,8 @@ public interface FilmStorage {
 
     List<Long> findFilmsByDirectorById(int directorId);
 
+    List<Long> findCommonFilmsWithFriend(Long userId, Long friendId);
+
     boolean isNotExistsFilm(Long id);
 
     List<Film> findPopularFilmSortedByGenreAndYear(Long count, int genreId, Integer year);
