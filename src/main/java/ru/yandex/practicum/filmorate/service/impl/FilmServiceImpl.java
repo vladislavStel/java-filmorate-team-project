@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.*;
 
 import java.time.Year;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,43 +99,22 @@ public class FilmServiceImpl implements FilmService {
         if (year > Year.now().getValue()) {
             throw new ValidationException("Выбраный год не был найден");
         }
+
         return filmStorage.findPopular(count);
     }
 
     @Override
     public List<Film> getFilmsSorted(int directorId, String sortBy) {
+
         if (directorStorage.isNotExistsDirector(directorId)) {
             throw new ObjectNotFoundException(String.format("Не найден режиссер: id=%d", directorId));
         }
 
-        return getFilmsByDirectorSorted(directorId, sortBy)
+        return filmStorage
+                .findFilmsByDirectorSorted(directorId, sortBy)
                 .stream()
                 .map(this::getFilmByID)
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public List<Long> getFilmsByDirectorSorted(int directorId, String sortBy) {
-        switch (sortBy) {
-            case ("year"):
-                return filmStorage.findFilmsByDirectorSortedByYear(directorId);
-            case ("likes"):
-                return filmStorage.findFilmsByDirectorSortedByLikes(directorId);
-            default:
-                return filmStorage.findFilmsByDirectorById(directorId);
-        }
-    }
-
-    @Override
-    public List<Film> getFilmsByDirectorAndTitle(String query, String by) {
-
-        List<Film> listFilms = new ArrayList<>();
-        if (by.contains("director")) {
-            listFilms.addAll(filmStorage.findFilmsByDirector(query));
-        }
-        if (by.contains("title")) {
-            listFilms.addAll(filmStorage.findFilmsByTitle(query));
-        }
-        return listFilms;
-    }
 }

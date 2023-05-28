@@ -18,11 +18,13 @@ public interface FilmStorage {
 
     void deleteFilmById(Long id);
 
+    List<Long> findFilmsByDirectorSorted(int directorId, String sortBy);
+
     List<Long> findFilmsByDirectorSortedByYear(int directorId);
 
     List<Long> findFilmsByDirectorSortedByLikes(int directorId);
 
-    List<Long> findFilmsByDirectorById(int directorId);
+    List<Long> findFilmsByDirector(int directorId);
 
     boolean isNotExistsFilm(Long id);
 
@@ -34,7 +36,4 @@ public interface FilmStorage {
 
     List<Film> findPopular(Long count);
 
-    List<Film> findFilmsByTitle(String query);
-
-    List<Film> findFilmsByDirector(String query);
 }
