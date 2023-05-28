@@ -12,15 +12,18 @@ import ru.yandex.practicum.filmorate.storage.LikesStorage;
 public class LikesDbStorage implements LikesStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final FeedDbStorage feedDbStorage;
 
     public void saveLike(Long filmId, Long userId) {
         jdbcTemplate.update("INSERT INTO LIKE_LIST (film_id, user_id) VALUES (? , ?)", filmId, userId);
         log.info("Пользователь id={} поставил лайк фильму id={}", userId, filmId);
+        feedDbStorage.saveEvent(userId, "LIKE", "ADD", filmId);
     }
 
     public void deleteLike(Long filmId, Long userId) {
         jdbcTemplate.update("DELETE FROM LIKE_LIST WHERE user_id = ? AND film_id = ?", userId, filmId);
         log.info("Пользователь id={} удалил лайк у фильма id={}", userId, filmId);
+        feedDbStorage.saveEvent(userId, "LIKE", "REMOVE", filmId);
     }
 
 }

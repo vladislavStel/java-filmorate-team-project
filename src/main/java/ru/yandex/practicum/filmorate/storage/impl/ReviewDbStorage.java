@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 public class ReviewDbStorage implements ReviewStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final FeedDbStorage feedDbStorage;
     private final RowMapper<Review> reviewMapper;
 
     @Override
@@ -29,6 +30,7 @@ public class ReviewDbStorage implements ReviewStorage {
                 .usingGeneratedKeyColumns("review_id");
         review.setReviewId(simpleJdbcInsert.executeAndReturnKey(review.toMap()).longValue());
         log.info("Добавлен новый отзыв: reviewId={} на фильм: filmId={} ", review.getReviewId(), review.getFilmId());
+        feedDbStorage.saveEvent(review.getUserId(), "REVIEW", "ADD", review.getReviewId());
         return review;
     }
 
@@ -41,14 +43,18 @@ public class ReviewDbStorage implements ReviewStorage {
                 review.getIsPositive(),
                 review.getReviewId());
         log.info("Данные отзыва обновлены: reviewId={}", review.getReviewId());
+        feedDbStorage.saveEvent(findById(review.getReviewId()).getUserId(), "REVIEW", "UPDATE",
+                review.getReviewId());
         return findById(review.getReviewId());
     }
 
     @Override
     public void delete(long reviewId) {
+        Review review = findById(reviewId);
         String sqlRemoveReviewById = "DELETE FROM REVIEW WHERE review_id = ?";
         jdbcTemplate.update(sqlRemoveReviewById, reviewId);
         log.info("Отзыв удален: id={}", reviewId);
+        feedDbStorage.saveEvent(review.getUserId(), "REVIEW", "REMOVE", review.getReviewId());
     }
 
     @Override
@@ -64,7 +70,7 @@ public class ReviewDbStorage implements ReviewStorage {
             return jdbcTemplate.queryForStream(sqlReviewsQuery, reviewMapper, count).collect(Collectors.toList());
         }
         String sqlReviewsQuery = "SELECT * FROM REVIEW WHERE film_id = ? ORDER BY useful DESC LIMIT ?";
-            return jdbcTemplate.queryForStream(sqlReviewsQuery, reviewMapper, filmId, count).collect(Collectors.toList());
+        return jdbcTemplate.queryForStream(sqlReviewsQuery, reviewMapper, filmId, count).collect(Collectors.toList());
     }
 
     @Override
@@ -105,8 +111,8 @@ public class ReviewDbStorage implements ReviewStorage {
             log.info("Пользователь с ID = {} удалил лайк для отзыва ID = {}.", userId, reviewId);
         } else {
             log.info("Ошибка при удалении лайка для отзыва ID = {} от пользователя с ID = {}.", reviewId, userId);
-            throw new ObjectNotFoundException(String.format("Ошибка при удалении лайка для отзыва ID = {} " +
-                    "от пользователя с ID = {}.", reviewId, userId));
+            throw new ObjectNotFoundException(String.format("Ошибка при удалении лайка для отзыва ID = %s " +
+                    "от пользователя с ID = %s.", reviewId, userId));
         }
     }
 
@@ -118,8 +124,8 @@ public class ReviewDbStorage implements ReviewStorage {
             log.info("Пользователь с ID = {} удалил дизлайк для отзыва ID = {}.", userId, reviewId);
         } else {
             log.info("Ошибка при удалении дизлайка для отзыва ID = {} от пользователя с ID = {}.", reviewId, userId);
-            throw new ObjectNotFoundException(String.format("Ошибка при удалении дизлайка для отзыва ID = {} " +
-                    "от пользователя с ID = {}.", reviewId, userId));
+            throw new ObjectNotFoundException(String.format("Ошибка при удалении дизлайка для отзыва ID = %s " +
+                    "от пользователя с ID = %s.", reviewId, userId));
         }
     }
 
