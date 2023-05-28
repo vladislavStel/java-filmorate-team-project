@@ -214,6 +214,7 @@ public class FilmDbStorage implements FilmStorage {
                 "GROUP BY f.film_id ";
         return jdbcTemplate.query(sqlQuery, filmMapper, query);
     }
+
     @Override
     public List<Long> findCommonFilmsWithFriend(Long userId, Long friendId) {
         String sql = "SELECT * " +
