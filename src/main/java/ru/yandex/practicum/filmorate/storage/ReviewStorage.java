@@ -6,19 +6,19 @@ import java.util.List;
 
 public interface ReviewStorage {
 
-    Review save(Review review);
-
-    Review update(Review review);
-
-    void delete(long reviewId);
-
     Review findById(long reviewId);
 
     List<Review> findAllReviewByFilmId(Long reviewId, Integer count);
 
+    Review save(Review review);
+
     void addLikeToReview(long reviewId, long userId);
 
     void addDislikeToReview(long reviewId, long userId);
+
+    Review update(Review review);
+
+    void delete(long reviewId);
 
     void removeLike(long reviewId, long userId);
 

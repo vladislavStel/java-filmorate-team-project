@@ -11,9 +11,15 @@ import lombok.experimental.FieldDefaults;
 public class Event {
 
     Long timestamp;
+
     Long userId;
+
     String eventType;
+
     String operation;
+
     Long eventId;
+
     Long entityId;
+
 }

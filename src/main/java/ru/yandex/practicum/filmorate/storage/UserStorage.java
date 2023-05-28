@@ -6,18 +6,18 @@ import java.util.List;
 
 public interface UserStorage {
 
-    User save(User user);
-
-    User update(User user);
-
     List<User> findAllUsers();
 
     User findUserById(Long id);
 
-    boolean isNotExistsUser(Long id);
+    User save(User user);
+
+    User update(User user);
 
     void delete(User user);
 
     void deleteUserById(Long id);
+
+    boolean isNotExistsUser(Long id);
 
 }

@@ -17,15 +17,8 @@ public class FeedDbStorage implements FeedStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void saveEvent(Long userId, String eventType, String operation, Long entityId) {
-        String sqlQuery = "INSERT INTO EVENT (user_id, event_type, operation, entity_id) VALUES (?, ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery, userId, eventType, operation, entityId);
-        log.info("Событие для пользователя id = {} добавлено в базу данных", userId);
-    }
-
-    @Override
     public List<Event> findFeed(Long id) {
-        String sqlQuery = "SELECT * FROM EVENT WHERE user_id = ?";
+        var sqlQuery = "SELECT * FROM EVENT WHERE user_id = ?";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> new Event(
                         rs.getTimestamp("event_time").getTime(),
                         rs.getLong("user_id"),
@@ -36,4 +29,12 @@ public class FeedDbStorage implements FeedStorage {
                 id
         );
     }
+
+    @Override
+    public void saveEvent(Long userId, String eventType, String operation, Long entityId) {
+        var sqlQuery = "INSERT INTO EVENT (user_id, event_type, operation, entity_id) VALUES (?, ?, ?, ?)";
+        jdbcTemplate.update(sqlQuery, userId, eventType, operation, entityId);
+        log.info("Событие для пользователя id = {} добавлено в базу данных", userId);
+    }
+
 }

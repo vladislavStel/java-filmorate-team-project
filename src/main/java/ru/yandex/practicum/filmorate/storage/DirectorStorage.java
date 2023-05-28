@@ -12,15 +12,15 @@ public interface DirectorStorage {
 
     Director findDirectorById(int id);
 
-    void saveDirectorByFilm(Film film);
-
-    void deleteDirectorByFilm(Film film);
-
     Set<Director> findFilmDirectors(Long filmId);
+
+    void saveDirectorByFilm(Film film);
 
     Director save(Director director);
 
     Director update(Director director);
+
+    void deleteDirectorByFilm(Film film);
 
     void delete(int id);
 

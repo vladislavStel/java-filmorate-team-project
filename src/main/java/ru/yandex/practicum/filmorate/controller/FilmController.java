@@ -12,8 +12,8 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
-@RestController
 @Validated
+@RestController
 @AllArgsConstructor
 @RequestMapping("/films")
 public class FilmController {
@@ -31,15 +31,9 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopular(@RequestParam(defaultValue = "10")
-                                      @Positive
-                                      Long count,
-                                      @RequestParam(defaultValue = "0")
-                                      @PositiveOrZero
-                                      int genreId,
-                                      @RequestParam(defaultValue = "0")
-                                      @PositiveOrZero
-                                      Integer year) {
+    public List<Film> getPopular(@RequestParam(defaultValue = "10") @Positive Long count,
+                                 @RequestParam(defaultValue = "0") @PositiveOrZero int genreId,
+                                 @RequestParam(defaultValue = "0") @PositiveOrZero Integer year) {
         return filmService.getPopular(count, genreId, year);
     }
 
@@ -54,6 +48,12 @@ public class FilmController {
                                                  @NotBlank String query,
                                                  @RequestParam(name = "by", required = false) String by) {
         return filmService.getFilmsByDirectorAndTitle(query, by);
+    }
+
+    @GetMapping("/common")
+    public List<Film> getCommonFilmsWithFriend(@RequestParam @Positive Long userId,
+                                               @RequestParam @Positive Long friendId) {
+        return filmService.getCommonFilms(userId, friendId);
     }
 
     @PostMapping
@@ -81,12 +81,6 @@ public class FilmController {
     @DeleteMapping("/{id}")
     public void deleteFilmById(@PathVariable("id") Long filmID) {
         filmService.removeFilmById(filmID);
-    }
-
-    @GetMapping("/common")
-    public List<Film> getCommonFilmsWithFriend(@RequestParam @Positive Long userId,
-                                               @RequestParam @Positive Long friendId) {
-        return filmService.getCommonFilms(userId, friendId);
     }
 
 }

@@ -14,16 +14,28 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.util.List;
 
 @Slf4j
-@AllArgsConstructor
 @Repository
+@AllArgsConstructor
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<User> userMapper;
 
     @Override
+    public List<User> findAllUsers() {
+        var sqlQuery = "SELECT user_id, login, name, birthday, email FROM USERS";
+        return jdbcTemplate.query(sqlQuery, userMapper);
+    }
+
+    @Override
+    public User findUserById(Long id) {
+        var sqlQuery = "SELECT user_id, login, name, birthday, email FROM USERS WHERE user_id = ?";
+        return jdbcTemplate.queryForObject(sqlQuery, userMapper, id);
+    }
+
+    @Override
     public User save(User user) {
-        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+        var simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("USERS")
                 .usingGeneratedKeyColumns("user_id");
         user.setId(simpleJdbcInsert.executeAndReturnKey(user.toMap()).longValue());
@@ -33,7 +45,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        String sqlQuery = "UPDATE USERS SET login = ?, name = ?, birthday = ?, email = ? WHERE user_id = ?";
+        var sqlQuery = "UPDATE USERS SET login = ?, name = ?, birthday = ?, email = ? WHERE user_id = ?";
         jdbcTemplate.update(sqlQuery,
                 user.getLogin(),
                 user.getName(),
@@ -42,24 +54,6 @@ public class UserDbStorage implements UserStorage {
                 user.getId());
         log.info("Обновлены данные пользователя: id={}", user.getId());
         return user;
-    }
-
-    @Override
-    public List<User> findAllUsers() {
-        String sqlQuery = "SELECT user_id, login, name, birthday, email FROM USERS";
-        return jdbcTemplate.query(sqlQuery, userMapper);
-    }
-
-    @Override
-    public User findUserById(Long id) {
-        String sqlQuery = "SELECT user_id, login, name, birthday, email FROM USERS WHERE user_id = ?";
-        return jdbcTemplate.queryForObject(sqlQuery, userMapper, id);
-    }
-
-    @Override
-    public boolean isNotExistsUser(Long id) {
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT * FROM USERS WHERE user_id = ?", id);
-        return !userRows.next();
     }
 
     @Override
@@ -76,9 +70,14 @@ public class UserDbStorage implements UserStorage {
         if (isNotExistsUser(id)) {
             throw new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", id));
         }
-        String sqlQuery = "DELETE FROM USERS WHERE user_id = ?";
-        jdbcTemplate.update(sqlQuery, id);
+        jdbcTemplate.update("DELETE FROM USERS WHERE user_id = ?", id);
         log.info("Пользователь удален: id={}", id);
+    }
+
+    @Override
+    public boolean isNotExistsUser(Long id) {
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT * FROM USERS WHERE user_id = ?", id);
+        return !userRows.next();
     }
 
 }

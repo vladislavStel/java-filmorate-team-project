@@ -9,22 +9,22 @@ public interface UserService {
 
     List<User> getAllUsers();
 
-    User addUser(User user);
-
-    User updateUser(User user);
-
     User getUserByID(Long id);
-
-    void addNewFriend(Long userID, Long friendID);
-
-    void removeFriend(Long userID, Long friendID);
-
-    void removeUserById(Long id);
 
     List<User> getListFriends(Long id);
 
     List<User> getListOfCommonFriends(Long id, Long otherID);
 
     List<Event> getFeed(Long userId);
+
+    User addUser(User user);
+
+    void addNewFriend(Long userID, Long friendID);
+
+    User updateUser(User user);
+
+    void removeFriend(Long userID, Long friendID);
+
+    void removeUserById(Long id);
 
 }
