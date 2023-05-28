@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.storage.*;
 import java.time.Year;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 @Service
 @AllArgsConstructor
@@ -110,11 +111,34 @@ public class FilmServiceImpl implements FilmService {
             throw new ObjectNotFoundException(String.format("Не найден режиссер: id=%d", directorId));
         }
 
-        return filmStorage
-                .findFilmsByDirectorSorted(directorId, sortBy)
+        return getFilmsByDirectorSorted(directorId, sortBy)
                 .stream()
                 .map(this::getFilmByID)
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<Long> getFilmsByDirectorSorted(int directorId, String sortBy) {
+        switch (sortBy) {
+            case ("year"):
+                return filmStorage.findFilmsByDirectorSortedByYear(directorId);
+            case ("likes"):
+                return filmStorage.findFilmsByDirectorSortedByLikes(directorId);
+            default:
+                return filmStorage.findFilmsByDirectorById(directorId);
+        }
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorAndTitle(String query, String by) {
+
+        List<Film> listFilms = new ArrayList<>();
+        if (by.contains("director")) {
+            listFilms.addAll(filmStorage.findFilmsByDirector(query));
+        }
+        if (by.contains("title")) {
+            listFilms.addAll(filmStorage.findFilmsByTitle(query));
+        }
+        return listFilms;
+    }
 }
