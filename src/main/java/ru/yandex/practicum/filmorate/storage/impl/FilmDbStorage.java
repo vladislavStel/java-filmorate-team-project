@@ -138,11 +138,9 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> findFilmsByDirector(String query) {
         var sqlQuery = "SELECT * FROM FILM AS f " +
-                "LEFT JOIN LIKE_LIST AS ll ON f.film_id = ll.film_id " +
                 "LEFT JOIN DIRECTOR_LIST AS dl ON f.film_id = dl.film_id " +
                 "LEFT JOIN DIRECTOR AS d ON dl.director_id = d.director_id " +
-                "WHERE LOCATE(UPPER(?), UPPER(d.name)) " +
-                "GROUP BY f.film_id ";
+                "WHERE LOCATE(UPPER(?), UPPER(d.name)) ";
         return jdbcTemplate.query(sqlQuery, filmMapper, query);
     }
 
