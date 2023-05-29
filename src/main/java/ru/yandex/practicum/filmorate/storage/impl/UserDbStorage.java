@@ -11,7 +11,9 @@ import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Repository
@@ -31,6 +33,12 @@ public class UserDbStorage implements UserStorage {
     public User findUserById(Long id) {
         var sqlQuery = "SELECT user_id, login, name, birthday, email FROM USERS WHERE user_id = ?";
         return jdbcTemplate.queryForObject(sqlQuery, userMapper, id);
+    }
+
+    @Override
+    public Set<Long> findLikeListByUserId(Long id) {
+        String sql = "SELECT film_id FROM LIKE_LIST WHERE user_id = ?";
+        return new HashSet<>(jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("film_id"), id));
     }
 
     @Override

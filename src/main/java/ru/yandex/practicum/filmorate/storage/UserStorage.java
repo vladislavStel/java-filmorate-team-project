@@ -3,12 +3,15 @@ package ru.yandex.practicum.filmorate.storage;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
+import java.util.Set;
 
 public interface UserStorage {
 
     List<User> findAllUsers();
 
     User findUserById(Long id);
+
+    Set<Long> findLikeListByUserId(Long id);
 
     User save(User user);
 

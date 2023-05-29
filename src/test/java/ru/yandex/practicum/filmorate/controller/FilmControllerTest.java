@@ -101,7 +101,7 @@ class FilmControllerTest {
         film = filmBuilder.id(1L).build();
         String json = objectMapper.writeValueAsString(film);
 
-        when(filmService.getFilmByID(1L)).thenReturn(film);
+        when(filmService.getFilmById(1L)).thenReturn(film);
         mockMvc.perform(get(url + "/1"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -112,11 +112,11 @@ class FilmControllerTest {
     @Test
     void handleGetFilmByIdWhenNotExistingId_ReturnException() throws Exception {
 
-        when(filmService.getFilmByID(999L)).thenThrow(new ObjectNotFoundException("Фильм с id 999 не найден"));
+        when(filmService.getFilmById(999L)).thenThrow(new ObjectNotFoundException("Фильм с id 999 не найден"));
         mockMvc.perform(get(url + "/999"))
                 .andDo(print())
                 .andExpect(status().isNotFound());
-        assertThrows(ObjectNotFoundException.class, () -> filmService.getFilmByID(999L));
+        assertThrows(ObjectNotFoundException.class, () -> filmService.getFilmById(999L));
 
     }
 

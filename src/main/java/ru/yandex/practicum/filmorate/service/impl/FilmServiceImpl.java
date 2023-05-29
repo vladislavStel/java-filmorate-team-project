@@ -26,11 +26,11 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Film> getAllFilms() {
-        return filmStorage.findAllFilms().stream().map(this::getFilmByID).collect(Collectors.toList());
+        return filmStorage.findAllFilms().stream().map(this::getFilmById).collect(Collectors.toList());
     }
 
     @Override
-    public Film getFilmByID(Long id) {
+    public Film getFilmById(Long id) {
         if (filmStorage.isNotExistsFilm(id)) {
             throw new ObjectNotFoundException(String.format("Фильм не найден: id=%d", id));
         }
@@ -69,7 +69,7 @@ public class FilmServiceImpl implements FilmService {
 
         return getFilmsByDirectorSorted(directorId, sortBy)
                 .stream()
-                .map(this::getFilmByID)
+                .map(this::getFilmById)
                 .collect(Collectors.toList());
     }
 
@@ -102,7 +102,7 @@ public class FilmServiceImpl implements FilmService {
     public List<Film> getCommonFilms(Long userId, Long friendId) {
         return filmStorage.findCommonFilmsWithFriend(userId, friendId)
                 .stream()
-                .map(this::getFilmByID)
+                .map(this::getFilmById)
                 .collect(Collectors.toList());
     }
 
@@ -130,7 +130,7 @@ public class FilmServiceImpl implements FilmService {
         genreStorage.saveGenresByFilm(film);
         directorStorage.deleteDirectorByFilm(film);
         directorStorage.saveDirectorByFilm(film);
-        return getFilmByID(film.getId());
+        return getFilmById(film.getId());
     }
 
     @Override

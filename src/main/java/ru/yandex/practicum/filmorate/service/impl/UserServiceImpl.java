@@ -6,19 +6,25 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    private final FilmService filmService;
     private final UserStorage userStorage;
     private final FriendsStorage friendsStorage;
     private final FeedStorage feedStorage;
@@ -57,6 +63,37 @@ public class UserServiceImpl implements UserService {
             throw new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", id));
         }
         return feedStorage.findFeed(id);
+    }
+
+    @Override
+    public Set<Film> getFilmRecommendations(Long id) {
+        if (userStorage.isNotExistsUser(id)) {
+            throw new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", id));
+        }
+        Set<Film> result = new HashSet<>();
+        Set<Long> allUsersId = getAllUsers().stream().map(User::getId).collect(Collectors.toSet());
+
+        long intersectionAmount = 0;
+        long otherUserInterception = -1;
+        Set<Long> filmsIdRecommended = null;
+
+        for (Long otherUserId : allUsersId) {
+            if (!id.equals(otherUserId)) {
+                Set<Long> likesListByOtherUser = userStorage.findLikeListByUserId(otherUserId);
+                Set<Long> intersectionList = new HashSet<>(userStorage.findLikeListByUserId(id));
+                intersectionList.retainAll(likesListByOtherUser);
+                if (intersectionList.size() > intersectionAmount) {
+                    intersectionAmount = intersectionList.size();
+                    otherUserInterception = otherUserId;
+                    intersectionList.forEach(likesListByOtherUser::remove);
+                    filmsIdRecommended = likesListByOtherUser;
+                }
+            }
+        }
+        if (otherUserInterception != -1 || filmsIdRecommended != null) {
+            filmsIdRecommended.forEach(filmId -> result.add(filmService.getFilmById(filmId)));
+        }
+        return result;
     }
 
     @Override

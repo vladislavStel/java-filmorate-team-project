@@ -8,7 +8,7 @@ public interface FilmService {
 
     List<Film> getAllFilms();
 
-    Film getFilmByID(Long id);
+    Film getFilmById(Long id);
 
     List<Film> getPopular(Long count, int genreId, Integer year);
 

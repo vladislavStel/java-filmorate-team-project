@@ -3,11 +3,13 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @AllArgsConstructor
@@ -39,6 +41,11 @@ public class UserController {
     @GetMapping("/{id}/feed")
     public List<Event> getFeed(@PathVariable("id") Long id) {
         return userService.getFeed(id);
+    }
+
+    @GetMapping("{id}/recommendations")
+    public Set<Film> getFilmsRecommendations(@PathVariable Long id) {
+        return userService.getFilmRecommendations(id);
     }
 
     @PostMapping
