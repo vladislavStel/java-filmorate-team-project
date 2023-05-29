@@ -18,20 +18,6 @@ public class FriendsDbStorage implements FriendsStorage {
     private final FeedDbStorage feedDbStorage;
 
     @Override
-    public void save(Long userId, Long friendId) {
-        jdbcTemplate.update("INSERT INTO FRIEND_LIST (user_id, friend_id) VALUES (?, ?)", userId, friendId);
-        log.info("Пользователь id={} добавил пользователя id={} в друзья", userId, friendId);
-        feedDbStorage.saveEvent(userId, "FRIEND", "ADD", friendId);
-    }
-
-    @Override
-    public void delete(Long userId, Long friendId) {
-        jdbcTemplate.update("DELETE FROM FRIEND_LIST WHERE user_id = ? AND friend_id = ?", userId, friendId);
-        log.info("Пользователь id={} удалил пользователя id={} из друзей", userId, friendId);
-        feedDbStorage.saveEvent(userId, "FRIEND", "REMOVE", friendId);
-    }
-
-    @Override
     public List<User> findFriends(Long id) {
         return jdbcTemplate.query("SELECT friend_id, login, name, birthday, email " +
                         "FROM FRIEND_LIST AS F " +
@@ -44,6 +30,20 @@ public class FriendsDbStorage implements FriendsStorage {
                         rs.getString("email")),
                 id
         );
+    }
+
+    @Override
+    public void save(Long userId, Long friendId) {
+        jdbcTemplate.update("INSERT INTO FRIEND_LIST (user_id, friend_id) VALUES (?, ?)", userId, friendId);
+        log.info("Пользователь id={} добавил пользователя id={} в друзья", userId, friendId);
+        feedDbStorage.saveEvent(userId, "FRIEND", "ADD", friendId);
+    }
+
+    @Override
+    public void delete(Long userId, Long friendId) {
+        jdbcTemplate.update("DELETE FROM FRIEND_LIST WHERE user_id = ? AND friend_id = ?", userId, friendId);
+        log.info("Пользователь id={} удалил пользователя id={} из друзей", userId, friendId);
+        feedDbStorage.saveEvent(userId, "FRIEND", "REMOVE", friendId);
     }
 
 }

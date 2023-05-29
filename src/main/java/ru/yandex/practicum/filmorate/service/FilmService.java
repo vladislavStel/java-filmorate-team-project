@@ -8,17 +8,7 @@ public interface FilmService {
 
     List<Film> getAllFilms();
 
-    Film addFilm(Film film);
-
-    Film updateFilm(Film film);
-
-    Film getFilmByID(Long id);
-
-    void addLike(Long filmID, Long userID);
-
-    void removeLike(Long filmID, Long userID);
-
-    void removeFilmById(Long filmId);
+    Film getFilmById(Long id);
 
     List<Film> getPopular(Long count, int genreId, Integer year);
 
@@ -29,5 +19,15 @@ public interface FilmService {
     List<Film> getFilmsByDirectorAndTitle(String query, String by);
 
     List<Film> getCommonFilms(Long userId, Long friendId);
+
+    Film addFilm(Film film);
+
+    void addLike(Long filmID, Long userID);
+
+    Film updateFilm(Film film);
+
+    void removeLike(Long filmID, Long userID);
+
+    void removeFilmById(Long filmId);
 
 }

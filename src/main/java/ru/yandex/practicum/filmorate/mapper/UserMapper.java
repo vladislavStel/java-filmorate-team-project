@@ -20,4 +20,5 @@ public class UserMapper implements RowMapper<User> {
                 .email(resultSet.getString("email"))
                 .build();
     }
+
 }

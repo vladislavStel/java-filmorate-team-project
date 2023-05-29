@@ -36,12 +36,24 @@ public class GenreDbStorage implements GenreStorage {
     public Genre findGenreById(int id) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT name FROM GENRE WHERE GENRE_ID = ?", id);
         if (userRows.next()) {
-            Genre genre = new Genre(id, userRows.getString("name"));
+            var genre = new Genre(id, userRows.getString("name"));
             log.info("Найден жанр по Id = {} ", genre);
             return genre;
         } else {
             throw new ObjectNotFoundException(String.format("Не найден жанр: id=%d", id));
         }
+    }
+
+    @Override
+    public Set<Genre> findFilmGenres(Long filmId) {
+        return new HashSet<>(jdbcTemplate.query("SELECT GENRE.genre_id, name FROM GENRE_LIST" +
+                        " JOIN GENRE ON GENRE_LIST.genre_id = GENRE.genre_id" +
+                        " WHERE film_id = ?" +
+                        " ORDER BY GENRE.genre_id", (rs, rowNum) -> new Genre(
+                        rs.getInt("genre_id"),
+                        rs.getString("name")),
+                filmId
+        ));
     }
 
     @Override
@@ -67,18 +79,6 @@ public class GenreDbStorage implements GenreStorage {
     @Override
     public void deleteGenresByFilm(Film film) {
         jdbcTemplate.update("DELETE FROM GENRE_LIST WHERE film_id = ?", film.getId());
-    }
-
-    @Override
-    public Set<Genre> findFilmGenres(Long filmId) {
-        return new HashSet<>(jdbcTemplate.query("SELECT GENRE.genre_id, name FROM GENRE_LIST" +
-                        " JOIN GENRE ON GENRE_LIST.genre_id = GENRE.genre_id" +
-                        " WHERE film_id = ?" +
-                        " ORDER BY GENRE.genre_id", (rs, rowNum) -> new Genre(
-                        rs.getInt("genre_id"),
-                        rs.getString("name")),
-                filmId
-        ));
     }
 
 }

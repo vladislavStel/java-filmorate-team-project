@@ -11,6 +11,7 @@ import lombok.experimental.FieldDefaults;
 public class Mpa {
 
     int id;
+
     String name;
 
     public Mpa(int id) {

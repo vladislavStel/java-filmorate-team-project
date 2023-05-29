@@ -38,12 +38,22 @@ public class DirectorDbStorage implements DirectorStorage {
     public Director findDirectorById(int id) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT name FROM DIRECTOR WHERE DIRECTOR_ID = ?", id);
         if (userRows.next()) {
-            Director director = new Director(id, userRows.getString("name"));
+            var director = new Director(id, userRows.getString("name"));
             log.info("Найден жанр по Id = {} ", director);
             return director;
         } else {
             throw new ObjectNotFoundException(String.format("Не найден режиссер: id=%d", id));
         }
+    }
+
+    public Set<Director> findFilmDirectors(Long filmId) {
+        return new HashSet<>(jdbcTemplate.query("SELECT DIRECTOR.director_id, name FROM DIRECTOR_LIST" +
+                        " JOIN DIRECTOR ON DIRECTOR_LIST.director_id = DIRECTOR.director_id" +
+                        " WHERE film_id = ? ORDER BY DIRECTOR.director_id", (rs, rowNum) -> new Director(
+                        rs.getInt("director_id"),
+                        rs.getString("name")),
+                filmId
+        ));
     }
 
     @Override
@@ -67,23 +77,8 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public void deleteDirectorByFilm(Film film) {
-        jdbcTemplate.update("DELETE FROM DIRECTOR_LIST WHERE film_id = ?", film.getId());
-    }
-
-    public Set<Director> findFilmDirectors(Long filmId) {
-        return new HashSet<>(jdbcTemplate.query("SELECT DIRECTOR.director_id, name FROM DIRECTOR_LIST" +
-                        " JOIN DIRECTOR ON DIRECTOR_LIST.director_id = DIRECTOR.director_id" +
-                        " WHERE film_id = ? ORDER BY DIRECTOR.director_id", (rs, rowNum) -> new Director(
-                        rs.getInt("director_id"),
-                        rs.getString("name")),
-                filmId
-        ));
-    }
-
-    @Override
     public Director save(Director director) {
-        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+        var simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("DIRECTOR")
                 .usingGeneratedKeyColumns("director_id");
         director.setId(simpleJdbcInsert.executeAndReturnKey(director.toMap()).intValue());
@@ -96,10 +91,15 @@ public class DirectorDbStorage implements DirectorStorage {
         if (isNotExistsDirector(director.getId())) {
             throw new ObjectNotFoundException(String.format("Режиссер не найден: id=%d", director.getId()));
         }
-        String sqlQuery = "UPDATE DIRECTOR SET name = ? WHERE director_id = ?";
+        var sqlQuery = "UPDATE DIRECTOR SET name = ? WHERE director_id = ?";
         jdbcTemplate.update(sqlQuery, director.getName(), director.getId());
         log.info("Данные режиссера обновлены: id={}", director.getId());
         return director;
+    }
+
+    @Override
+    public void deleteDirectorByFilm(Film film) {
+        jdbcTemplate.update("DELETE FROM DIRECTOR_LIST WHERE film_id = ?", film.getId());
     }
 
     @Override

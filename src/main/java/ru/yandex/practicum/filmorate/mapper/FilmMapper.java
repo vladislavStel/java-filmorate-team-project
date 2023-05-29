@@ -14,6 +14,7 @@ import java.sql.SQLException;
 @Component
 @AllArgsConstructor
 public class FilmMapper implements RowMapper<Film> {
+
     private final DirectorDbStorage directorDbStorage;
     private final MpaDbStorage mpaDbStorage;
     private final GenreDbStorage genreDbStorage;
@@ -31,4 +32,5 @@ public class FilmMapper implements RowMapper<Film> {
                 .directors(directorDbStorage.findFilmDirectors(rs.getLong("film_id")))
                 .build();
     }
+
 }

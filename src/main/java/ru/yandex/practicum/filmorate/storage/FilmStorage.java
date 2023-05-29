@@ -6,17 +6,9 @@ import java.util.List;
 
 public interface FilmStorage {
 
-    Film save(Film film);
-
-    Film update(Film film);
-
     List<Long> findAllFilms();
 
     Film findFilmById(Long id);
-
-    void delete(Film film);
-
-    void deleteFilmById(Long id);
 
     List<Long> findFilmsByDirectorSortedByYear(int directorId);
 
@@ -25,8 +17,6 @@ public interface FilmStorage {
     List<Long> findFilmsByDirectorById(int directorId);
 
     List<Long> findCommonFilmsWithFriend(Long userId, Long friendId);
-
-    boolean isNotExistsFilm(Long id);
 
     List<Film> findPopularFilmSortedByGenreAndYear(Long count, int genreId, Integer year);
 
@@ -39,4 +29,15 @@ public interface FilmStorage {
     List<Film> findFilmsByTitle(String query);
 
     List<Film> findFilmsByDirector(String query);
+
+    Film save(Film film);
+
+    Film update(Film film);
+
+    void delete(Film film);
+
+    void deleteFilmById(Long id);
+
+    boolean isNotExistsFilm(Long id);
+
 }

@@ -6,10 +6,10 @@ import java.util.List;
 
 public interface FriendsStorage {
 
+    List<User> findFriends(Long id);
+
     void save(Long userId, Long friendId);
 
     void delete(Long userId, Long friendId);
-
-    List<User> findFriends(Long id);
 
 }
