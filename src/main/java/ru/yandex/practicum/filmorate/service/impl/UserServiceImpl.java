@@ -52,9 +52,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getListOfCommonFriends(Long id, Long otherID) {
+    public List<User> getListOfCommonFriends(Long id, Long otherId) {
         List<User> list = getListFriends(id);
-        list.retainAll(getListFriends(otherID));
+        list.retainAll(getListFriends(otherId));
         return list;
     }
 
@@ -103,15 +103,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void addNewFriend(Long userID, Long friendID) {
-        if (userStorage.isNotExistsUser(userID) || userStorage.isNotExistsUser(friendID)) {
+    public void addNewFriend(Long userId, Long friendId) {
+        if (userStorage.isNotExistsUser(userId) || userStorage.isNotExistsUser(friendId)) {
             throw new ObjectNotFoundException(String.format("Пользователь id=%d или/и друг id=%d не найден",
-                    userID, friendID));
+                    userId, friendId));
         }
-        if (userID.equals(friendID)) {
+        if (userId.equals(friendId)) {
             throw new ValidationException("Ошибка валидации. Нельзя добавить себя в друзья");
         }
-        friendsStorage.save(userID, friendID);
+        friendsStorage.save(userId, friendId);
     }
 
     @Override
@@ -124,15 +124,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void removeFriend(Long userID, Long friendID) {
-        if (userStorage.isNotExistsUser(userID) || userStorage.isNotExistsUser(friendID)) {
+    public void removeFriend(Long userId, Long friendId) {
+        if (userStorage.isNotExistsUser(userId) || userStorage.isNotExistsUser(friendId)) {
             throw new ObjectNotFoundException(String.format("Пользователь id=%d или/и друг id=%d не найден",
-                    userID, friendID));
+                    userId, friendId));
         }
-        if (userID.equals(friendID)) {
+        if (userId.equals(friendId)) {
             throw new ValidationException("Ошибка валидации. Нельзя удалить себя из друзей");
         }
-        friendsStorage.delete(userID, friendID);
+        friendsStorage.delete(userId, friendId);
     }
 
     @Override

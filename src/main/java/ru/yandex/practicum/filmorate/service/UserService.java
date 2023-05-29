@@ -15,19 +15,19 @@ public interface UserService {
 
     List<User> getListFriends(Long id);
 
-    List<User> getListOfCommonFriends(Long id, Long otherID);
+    List<User> getListOfCommonFriends(Long id, Long otherId);
 
     List<Event> getFeed(Long userId);
 
-    Set<Film> getFilmRecommendations(Long Id);
+    Set<Film> getFilmRecommendations(Long id);
 
     User addUser(User user);
 
-    void addNewFriend(Long userID, Long friendID);
+    void addNewFriend(Long userId, Long friendId);
 
     User updateUser(User user);
 
-    void removeFriend(Long userID, Long friendID);
+    void removeFriend(Long userId, Long friendId);
 
     void removeUserById(Long id);
 
