@@ -31,10 +31,10 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopular(@RequestParam(defaultValue = "10") @Positive Long count,
-                                 @RequestParam(defaultValue = "0") @PositiveOrZero int genreId,
-                                 @RequestParam(defaultValue = "0") @PositiveOrZero Integer year) {
-        return filmService.getPopular(count, genreId, year);
+    public List<Film> getPopularFilms(@RequestParam(required = false, defaultValue = "10") @Positive int count,
+                                 @RequestParam(required = false, defaultValue = "0") @PositiveOrZero int genreId,
+                                 @RequestParam(required = false, defaultValue = "0") @PositiveOrZero int year) {
+        return filmService.getPopularFilms(count, genreId, year);
     }
 
     @GetMapping("/director/{directorId}")
