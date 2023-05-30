@@ -43,21 +43,39 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<Film> getPopular(Long count, int genreId, Integer year) {
-        if (genreId != 0 && year != 0) {
-            return filmStorage.findPopularFilmSortedByGenreAndYear(count, genreId, year);
+    public List<Film> getPopularFilms(int count, int genreId, int year) {
+        if (genreId > 0 || year > 0) {
+            return getPopularFilmsSorted(count, genreId, year);
+        } else if (genreId == 0 && year == 0) {
+            var topFilmsId = filmStorage.findPopularFilms(count);
+            if (!topFilmsId.isEmpty()) {
+                return topFilmsId.stream().map(this::getFilmById).collect(Collectors.toList());
+            }
         }
-        if (genreId != 0) {
-            return filmStorage.findPopularFilmSortedByGenre(count, genreId);
-        }
-        if (year != 0) {
-            return filmStorage.findPopularFilmSortedByYear(count, year);
-        }
-        if (year > Year.now().getValue()) {
-            throw new ValidationException("Выбраный год не был найден");
+        return filmStorage.findAllFilms().stream().map(this::getFilmById).limit(count).collect(Collectors.toList());
+    }
+
+    private List<Film> getPopularFilmsSorted(int count, int genreId, int year) {
+        List<Long> popularSortedFilmId;
+        if (year > 0) {
+            if (year > Year.now().getValue()) {
+                throw new ValidationException("Некорректный год сортировки");
+            }
+            popularSortedFilmId = filmStorage.findPopularFilmsSortedByYear(count, year);
+            if (genreId > 0) {
+                return popularSortedFilmId.stream().map(this::getFilmById)
+                        .filter((film) -> film.getGenres().contains(genreStorage.findGenreById(genreId)))
+                        .collect(Collectors.toList());
+            }
+
+        } else {
+            popularSortedFilmId = filmStorage.findPopularFilmsSortedByGenre(genreId);
         }
 
-        return filmStorage.findPopular(count);
+        return popularSortedFilmId.stream()
+                .limit(count)
+                .map(this::getFilmById)
+                .collect(Collectors.toList());
     }
 
     @Override

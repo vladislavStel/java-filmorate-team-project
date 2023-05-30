@@ -10,7 +10,7 @@ public interface FilmService {
 
     Film getFilmById(Long id);
 
-    List<Film> getPopular(Long count, int genreId, Integer year);
+    List<Film> getPopularFilms(int count, int genreId, int year);
 
     List<Film> getFilmsSorted(int directorId, String sortBy);
 

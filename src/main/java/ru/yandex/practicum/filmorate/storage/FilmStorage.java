@@ -18,13 +18,11 @@ public interface FilmStorage {
 
     List<Long> findCommonFilmsWithFriend(Long userId, Long friendId);
 
-    List<Film> findPopularFilmSortedByGenreAndYear(Long count, int genreId, Integer year);
+    List<Long> findPopularFilmsSortedByGenre(int genreId);
 
-    List<Film> findPopularFilmSortedByGenre(Long count, int genreId);
+    List<Long> findPopularFilmsSortedByYear(int count, int year);
 
-    List<Film> findPopularFilmSortedByYear(Long count, Integer year);
-
-    List<Film> findPopular(Long count);
+    List<Long> findPopularFilms(int count);
 
     List<Film> findFilmsByTitle(String query);
 

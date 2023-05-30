@@ -48,48 +48,41 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> findPopularFilmSortedByGenreAndYear(Long count, int genreId, Integer year) {
-        var sqlQuery = "SELECT f.* FROM film f " +
-                "LEFT JOIN like_list ll on f.film_id = ll.film_id " +
-                "LEFT JOIN genre_list gl ON f.film_id = gl.film_id " +
-                "WHERE gl.genre_id = ? AND year(f.releaseDate) = ? " +
-                "GROUP BY  f.film_id, gl.genre_id " +
-                "ORDER BY COUNT(ll.user_id) DESC " +
-                "LIMIT ?";
-        return jdbcTemplate.query(sqlQuery, filmMapper, genreId, year, count);
+    public List<Long> findPopularFilmsSortedByGenre(int genreId) {
+        var withoutLikes = "SELECT fg.film_id FROM (SELECT FILM.film_id FROM FILM " +
+                "INNER JOIN GENRE_LIST as g ON FILM.film_id = g.film_id WHERE genre_id = ?) AS fg";
+        var withLikes = withoutLikes + " " +
+                "INNER JOIN LIKE_LIST l on fg.film_id = l.film_id GROUP BY l.film_id ORDER BY COUNT(user_id) DESC";
+
+        return filterPopularFilms(withLikes, withoutLikes, genreId);
     }
 
     @Override
-    public List<Film> findPopularFilmSortedByGenre(Long count, int genreId) {
-        var sqlQuery = "SELECT f.* FROM film f " +
-                "LEFT JOIN like_list ll on f.film_id = ll.film_id " +
-                "LEFT JOIN genre_list gl ON f.film_id = gl.film_id " +
-                "WHERE gl.genre_id = ? " +
-                "GROUP BY  f.film_id, gl.genre_id " +
-                "ORDER BY COUNT(ll.user_id) DESC " +
-                "LIMIT ?";
-        return jdbcTemplate.query(sqlQuery,filmMapper, genreId, count);
+    public List<Long> findPopularFilmsSortedByYear(int count, int year) {
+        var withoutLikes = "SELECT fy.film_id FROM (SELECT film_id FROM FILM WHERE year(releaseDate) = ?) AS fy ";
+        var withLikes = withoutLikes + " " +
+                "INNER JOIN LIKE_LIST l on fy.film_id = l.film_id GROUP BY l.film_id " +
+                "ORDER BY COUNT(user_id) DESC limit " + count;
+        return filterPopularFilms(withLikes, withoutLikes, year);
+    }
+
+    private List<Long> filterPopularFilms(String withLikes, String withoutLikes, int filter) {
+        var filmIdWithLikes = jdbcTemplate.queryForList(withLikes, Long.class, filter);
+        if (!filmIdWithLikes.isEmpty()) {
+            return filmIdWithLikes;
+        } else {
+            var onlyGenres = jdbcTemplate.queryForList(withoutLikes, Long.class, filter);
+            if (!onlyGenres.isEmpty()) {
+                return onlyGenres;
+            }
+        }
+        return List.of();
     }
 
     @Override
-    public List<Film> findPopularFilmSortedByYear(Long count, Integer year) {
-        var sqlQuery = "SELECT f.* FROM film f " +
-                "LEFT JOIN like_list ll on f.film_id = ll.film_id " +
-                "WHERE year(f.releaseDate) = ? " +
-                "GROUP BY  f.film_id " +
-                "ORDER BY COUNT(ll.user_id) DESC " +
-                "LIMIT ?";
-        return jdbcTemplate.query(sqlQuery, filmMapper, year, count);
-    }
-
-    @Override
-    public List<Film> findPopular(Long count) {
-        var sqlQuery = "SELECT f.* FROM film f " +
-                "LEFT JOIN like_list ll on f.film_id = ll.film_id " +
-                "GROUP BY  f.film_id " +
-                "ORDER BY COUNT(ll.user_id) DESC " +
-                "LIMIT ?";
-        return jdbcTemplate.query(sqlQuery, filmMapper, count);
+    public List<Long> findPopularFilms(int count) {
+        String sql = "SELECT film_id FROM LIKE_LIST GROUP BY film_id ORDER BY COUNT(user_id) DESC LIMIT ?";
+        return jdbcTemplate.queryForList(sql, Long.class, count);
     }
 
     @Override
@@ -138,11 +131,9 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> findFilmsByDirector(String query) {
         var sqlQuery = "SELECT * FROM FILM AS f " +
-                "LEFT JOIN LIKE_LIST AS ll ON f.film_id = ll.film_id " +
                 "LEFT JOIN DIRECTOR_LIST AS dl ON f.film_id = dl.film_id " +
                 "LEFT JOIN DIRECTOR AS d ON dl.director_id = d.director_id " +
-                "WHERE LOCATE(UPPER(?), UPPER(d.name)) " +
-                "GROUP BY f.film_id ";
+                "WHERE LOCATE(UPPER(?), UPPER(d.name)) ";
         return jdbcTemplate.query(sqlQuery, filmMapper, query);
     }
 
