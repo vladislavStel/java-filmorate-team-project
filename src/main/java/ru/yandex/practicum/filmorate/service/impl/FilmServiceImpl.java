@@ -71,7 +71,6 @@ public class FilmServiceImpl implements FilmService {
                     .filter((film) -> film.getGenres().contains(genreById))
                     .collect(Collectors.toList());
             }
-
         } else {
             popularSortedFilmId = filmStorage.findPopularFilmsSortedByGenre(genreId);
         }
