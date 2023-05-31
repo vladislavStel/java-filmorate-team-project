@@ -89,9 +89,7 @@ public class UserServiceImpl implements UserService {
                 }
         }
         if (otherUserInterception != -1 || filmsIdRecommended != null) {
-            for (Long filmId : filmsIdRecommended) {
-                result.add(filmService.getFilmById(filmId));
-            }
+             filmsIdRecommended.forEach(filmId -> result.add(filmService.getFilmById(filmId)));
         }
         return result;
     }
