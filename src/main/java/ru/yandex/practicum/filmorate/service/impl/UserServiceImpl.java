@@ -73,23 +73,23 @@ public class UserServiceImpl implements UserService {
         Set<Film> result = new HashSet<>();
         Set<Long> allUsersId = getAllUsers().stream().map(User::getId).collect(Collectors.toSet());
         Set<Long> intersectionList = new HashSet<>(userStorage.findLikeListByUserId(id));
-        Set<Long> likesListByOtherUser = userStorage.findLikeList();
+        Set<Long> likesListByUser = userStorage.findLikeList();
         
         long intersectionAmount = 0;
         long otherUserInterception = -1;
         Set<Long> filmsIdRecommended = null;
 
         for (Long otherUserId : allUsersId) {
-                intersectionList.retainAll(likesListByOtherUser);
+                intersectionList.retainAll(likesListByUser);
                 if (intersectionList.size() > intersectionAmount) {
                     intersectionAmount = intersectionList.size();
                     otherUserInterception = otherUserId;
-                    intersectionList.forEach(likesListByOtherUser::remove);
-                    filmsIdRecommended = likesListByOtherUser;
+                    intersectionList.forEach(likesListByUser::remove);
+                    filmsIdRecommended = likesListByUser;
                 }
         }
         if (otherUserInterception != -1 || filmsIdRecommended != null) {
-             filmsIdRecommended.forEach(filmId -> result.add(filmService.getFilmById(filmId)));
+            filmsIdRecommended.forEach(filmId -> result.add(filmService.getFilmById(filmId)));
         }
         return result;
     }
