@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.*;
 
@@ -63,9 +64,15 @@ public class FilmServiceImpl implements FilmService {
             }
             popularSortedFilmId = filmStorage.findPopularFilmsSortedByYear(count, year);
             if (genreId > 0) {
-                return popularSortedFilmId.stream().map(this::getFilmById)
-                        .filter((film) -> film.getGenres().contains(genreStorage.findGenreById(genreId)))
-                        .collect(Collectors.toList());
+                /*popularSortedFilmId.stream().map(this::getFilmById)
+                       .filter((film) -> film.getGenres().contains(genreStorage.findGenreById(genreId)))
+                    .collect(Collectors.toList());*/
+                Genre genreById = genreStorage.findGenreById(genreId);
+
+                popularSortedFilmId.stream()
+                    .map(this::getFilmById)
+                    .filter((film) -> film.getGenres().contains(genreById))
+                    .collect(Collectors.toList());
             }
 
         } else {

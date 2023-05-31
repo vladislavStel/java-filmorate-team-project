@@ -13,6 +13,8 @@ public interface UserStorage {
 
     Set<Long> findLikeListByUserId(Long id);
 
+    Set<Long> findLikeList();
+
     User save(User user);
 
     User update(User user);

@@ -40,7 +40,11 @@ public class UserDbStorage implements UserStorage {
         String sql = "SELECT film_id FROM LIKE_LIST WHERE user_id = ?";
         return new HashSet<>(jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("film_id"), id));
     }
-
+    @Override
+    public Set<Long> findLikeList() {
+        String sql = "SELECT * FROM LIKE_LIST ";
+        return new HashSet<>(jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("film_id")));
+    }
     @Override
     public User save(User user) {
         var simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)

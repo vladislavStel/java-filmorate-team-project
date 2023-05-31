@@ -72,15 +72,17 @@ public class UserServiceImpl implements UserService {
         }
         Set<Film> result = new HashSet<>();
         Set<Long> allUsersId = getAllUsers().stream().map(User::getId).collect(Collectors.toSet());
-
+        Set<Long> intersectionList = new HashSet<>(userStorage.findLikeListByUserId(id));
+        Set<Long> likesListByOtherUser = userStorage.findLikeList();
+        
         long intersectionAmount = 0;
         long otherUserInterception = -1;
         Set<Long> filmsIdRecommended = null;
 
         for (Long otherUserId : allUsersId) {
-            if (!id.equals(otherUserId)) {
-                Set<Long> likesListByOtherUser = userStorage.findLikeListByUserId(otherUserId);
-                Set<Long> intersectionList = new HashSet<>(userStorage.findLikeListByUserId(id));
+          //  if (!id.equals(otherUserId)) {
+                //Set<Long> likesListByOtherUser = userStorage.findLikeListByUserId(otherUserId);
+                //Set<Long> intersectionList = new HashSet<>(userStorage.findLikeListByUserId(id));
                 intersectionList.retainAll(likesListByOtherUser);
                 if (intersectionList.size() > intersectionAmount) {
                     intersectionAmount = intersectionList.size();
@@ -88,10 +90,11 @@ public class UserServiceImpl implements UserService {
                     intersectionList.forEach(likesListByOtherUser::remove);
                     filmsIdRecommended = likesListByOtherUser;
                 }
-            }
         }
         if (otherUserInterception != -1 || filmsIdRecommended != null) {
-            filmsIdRecommended.forEach(filmId -> result.add(filmService.getFilmById(filmId)));
+            for (Long filmId : filmsIdRecommended) {
+                result.add(filmService.getFilmById(filmId));
+            }
         }
         return result;
     }
