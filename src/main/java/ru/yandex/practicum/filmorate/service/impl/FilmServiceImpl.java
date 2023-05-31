@@ -64,9 +64,6 @@ public class FilmServiceImpl implements FilmService {
             }
             popularSortedFilmId = filmStorage.findPopularFilmsSortedByYear(count, year);
             if (genreId > 0) {
-                /*popularSortedFilmId.stream().map(this::getFilmById)
-                       .filter((film) -> film.getGenres().contains(genreStorage.findGenreById(genreId)))
-                    .collect(Collectors.toList());*/
                 Genre genreById = genreStorage.findGenreById(genreId);
 
                 popularSortedFilmId.stream()

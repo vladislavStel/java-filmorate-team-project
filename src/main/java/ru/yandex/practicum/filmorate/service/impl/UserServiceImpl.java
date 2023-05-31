@@ -80,9 +80,6 @@ public class UserServiceImpl implements UserService {
         Set<Long> filmsIdRecommended = null;
 
         for (Long otherUserId : allUsersId) {
-          //  if (!id.equals(otherUserId)) {
-                //Set<Long> likesListByOtherUser = userStorage.findLikeListByUserId(otherUserId);
-                //Set<Long> intersectionList = new HashSet<>(userStorage.findLikeListByUserId(id));
                 intersectionList.retainAll(likesListByOtherUser);
                 if (intersectionList.size() > intersectionAmount) {
                     intersectionAmount = intersectionList.size();
