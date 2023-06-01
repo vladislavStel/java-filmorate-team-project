@@ -22,11 +22,11 @@ public interface FilmService {
 
     Film addFilm(Film film);
 
-    void addLike(Long filmID, Long userID);
+    void addLike(Long filmId, Long userId);
 
     Film updateFilm(Film film);
 
-    void removeLike(Long filmID, Long userID);
+    void removeLike(Long filmId, Long userId);
 
     void removeFilmById(Long filmId);
 

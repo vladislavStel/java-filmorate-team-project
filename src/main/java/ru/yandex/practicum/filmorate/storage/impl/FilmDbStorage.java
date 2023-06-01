@@ -66,19 +66,6 @@ public class FilmDbStorage implements FilmStorage {
         return filterPopularFilms(withLikes, withoutLikes, year);
     }
 
-    private List<Long> filterPopularFilms(String withLikes, String withoutLikes, int filter) {
-        var filmIdWithLikes = jdbcTemplate.queryForList(withLikes, Long.class, filter);
-        if (!filmIdWithLikes.isEmpty()) {
-            return filmIdWithLikes;
-        } else {
-            var onlyGenres = jdbcTemplate.queryForList(withoutLikes, Long.class, filter);
-            if (!onlyGenres.isEmpty()) {
-                return onlyGenres;
-            }
-        }
-        return List.of();
-    }
-
     @Override
     public List<Long> findPopularFilms(int count) {
         String sql = "SELECT film_id FROM LIKE_LIST GROUP BY film_id ORDER BY COUNT(user_id) DESC LIMIT ?";
@@ -200,6 +187,19 @@ public class FilmDbStorage implements FilmStorage {
     public boolean isNotExistsFilm(Long id) {
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT * FROM FILM WHERE film_id = ?", id);
         return !filmRows.next();
+    }
+
+    private List<Long> filterPopularFilms(String withLikes, String withoutLikes, int filter) {
+        var filmIdWithLikes = jdbcTemplate.queryForList(withLikes, Long.class, filter);
+        if (!filmIdWithLikes.isEmpty()) {
+            return filmIdWithLikes;
+        } else {
+            var onlyGenres = jdbcTemplate.queryForList(withoutLikes, Long.class, filter);
+            if (!onlyGenres.isEmpty()) {
+                return onlyGenres;
+            }
+        }
+        return List.of();
     }
 
 }

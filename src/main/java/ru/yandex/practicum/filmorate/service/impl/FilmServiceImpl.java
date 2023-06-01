@@ -55,30 +55,6 @@ public class FilmServiceImpl implements FilmService {
         return filmStorage.findAllFilms().stream().map(this::getFilmById).limit(count).collect(Collectors.toList());
     }
 
-    private List<Film> getPopularFilmsSorted(int count, int genreId, int year) {
-        List<Long> popularSortedFilmId;
-        if (year > 0) {
-            if (year > Year.now().getValue()) {
-                throw new ValidationException("Некорректный год сортировки");
-            }
-            popularSortedFilmId = filmStorage.findPopularFilmsSortedByYear(count, year);
-            if (genreId > 0) {
-                var genre = genreStorage.findGenreById(genreId);
-                popularSortedFilmId.stream()
-                    .map(this::getFilmById)
-                    .filter((film) -> film.getGenres().contains(genre))
-                    .collect(Collectors.toList());
-            }
-        } else {
-            popularSortedFilmId = filmStorage.findPopularFilmsSortedByGenre(genreId);
-        }
-
-        return popularSortedFilmId.stream()
-                .limit(count)
-                .map(this::getFilmById)
-                .collect(Collectors.toList());
-    }
-
     @Override
     public List<Film> getFilmsSorted(int directorId, String sortBy) {
 
@@ -167,6 +143,30 @@ public class FilmServiceImpl implements FilmService {
             throw new ObjectNotFoundException(String.format("Фильм id=%d не найден", filmId));
         }
         filmStorage.deleteFilmById(filmId);
+    }
+
+    private List<Film> getPopularFilmsSorted(int count, int genreId, int year) {
+        List<Long> popularSortedFilmId;
+        if (year > 0) {
+            if (year > Year.now().getValue()) {
+                throw new ValidationException("Некорректный год сортировки");
+            }
+            popularSortedFilmId = filmStorage.findPopularFilmsSortedByYear(count, year);
+            if (genreId > 0) {
+                var genre = genreStorage.findGenreById(genreId);
+                popularSortedFilmId.stream()
+                        .map(this::getFilmById)
+                        .filter((film) -> film.getGenres().contains(genre))
+                        .collect(Collectors.toList());
+            }
+        } else {
+            popularSortedFilmId = filmStorage.findPopularFilmsSortedByGenre(genreId);
+        }
+
+        return popularSortedFilmId.stream()
+                .limit(count)
+                .map(this::getFilmById)
+                .collect(Collectors.toList());
     }
 
 }
