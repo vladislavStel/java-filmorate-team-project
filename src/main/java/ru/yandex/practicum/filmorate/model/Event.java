@@ -8,14 +8,18 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Mpa {
+public class Event {
 
-    int id;
+    Long timestamp;
 
-    String name;
+    Long userId;
 
-    public Mpa(int id) {
-        this.id = id;
-    }
+    String eventType;
+
+    String operation;
+
+    Long eventId;
+
+    Long entityId;
 
 }

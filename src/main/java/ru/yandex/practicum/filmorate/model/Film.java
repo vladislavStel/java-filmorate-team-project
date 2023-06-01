@@ -10,6 +10,7 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -35,11 +36,17 @@ public class Film {
     @Positive
     int duration;
 
-    Set<Genre> genres;
+    Set<Genre> genres = new HashSet<>();
+
+    Set<Director> directors;
 
     Mpa mpa;
 
     Long rate;
+
+    public List<Genre> getGenres() {
+        return genres.stream().sorted(Comparator.comparingInt(Genre::getId)).collect(Collectors.toList());
+    }
 
     public Film(Long id, String name, String description, LocalDate releaseDate, int duration) {
         this.id = id;

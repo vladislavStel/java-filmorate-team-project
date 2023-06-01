@@ -8,16 +8,26 @@ public interface FilmService {
 
     List<Film> getAllFilms();
 
+    Film getFilmById(Long id);
+
+    List<Film> getPopularFilms(int count, int genreId, int year);
+
+    List<Film> getFilmsSorted(int directorId, String sortBy);
+
+    List<Long> getFilmsByDirectorSorted(int directorId, String sortBy);
+
+    List<Film> getFilmsByDirectorAndTitle(String query, String by);
+
+    List<Film> getCommonFilms(Long userId, Long friendId);
+
     Film addFilm(Film film);
+
+    void addLike(Long filmId, Long userId);
 
     Film updateFilm(Film film);
 
-    Film getFilmByID(Long id);
+    void removeLike(Long filmId, Long userId);
 
-    void addLike(Long filmID, Long userID);
-
-    void removeLike(Long filmID, Long userID);
-
-    List<Film> getPopular(Long count);
+    void removeFilmById(Long filmId);
 
 }

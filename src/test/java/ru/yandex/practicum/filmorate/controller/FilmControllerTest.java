@@ -11,10 +11,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -52,7 +54,10 @@ class FilmControllerTest {
                 .name("Film name")
                 .description("Film description")
                 .releaseDate(testReleaseDate)
-                .duration(duration);
+                .duration(duration)
+                .genres(new HashSet<>())
+                .directors(new HashSet<>())
+                .mpa(new Mpa(1));
 
     }
 
@@ -80,9 +85,9 @@ class FilmControllerTest {
 
         Film film1 = filmBuilder.id(1L).name("Film name1").build();
         Film film2 = filmBuilder.id(2L).name("Film name2").build();
-        when(filmService.getPopular(2L)).thenReturn(List.of(film1, film2));
+        when(filmService.getPopularFilms(2, 2, 2000)).thenReturn(List.of(film1, film2));
 
-        mockMvc.perform(get(url + "/popular?count=2"))
+        mockMvc.perform(get(url + "/popular?count=2&year=2000&genreId=2"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id", is(1)))
@@ -96,7 +101,7 @@ class FilmControllerTest {
         film = filmBuilder.id(1L).build();
         String json = objectMapper.writeValueAsString(film);
 
-        when(filmService.getFilmByID(1L)).thenReturn(film);
+        when(filmService.getFilmById(1L)).thenReturn(film);
         mockMvc.perform(get(url + "/1"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -107,11 +112,11 @@ class FilmControllerTest {
     @Test
     void handleGetFilmByIdWhenNotExistingId_ReturnException() throws Exception {
 
-        when(filmService.getFilmByID(999L)).thenThrow(new ObjectNotFoundException("Фильм с id 999 не найден"));
+        when(filmService.getFilmById(999L)).thenThrow(new ObjectNotFoundException("Фильм с id 999 не найден"));
         mockMvc.perform(get(url + "/999"))
                 .andDo(print())
                 .andExpect(status().isNotFound());
-        assertThrows(ObjectNotFoundException.class, () -> filmService.getFilmByID(999L));
+        assertThrows(ObjectNotFoundException.class, () -> filmService.getFilmById(999L));
 
     }
 

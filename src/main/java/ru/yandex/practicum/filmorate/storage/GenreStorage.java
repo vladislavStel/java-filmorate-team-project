@@ -12,10 +12,10 @@ public interface GenreStorage {
 
     Genre findGenreById(int id);
 
+    Set<Genre> findFilmGenres(Long filmId);
+
     void saveGenresByFilm(Film film);
 
     void deleteGenresByFilm(Film film);
-
-    Set<Genre> findFilmGenres(Long filmId);
 
 }
