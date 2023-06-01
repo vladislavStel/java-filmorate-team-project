@@ -8,15 +8,12 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -24,7 +21,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final FilmService filmService;
     private final UserStorage userStorage;
     private final FriendsStorage friendsStorage;
     private final FeedStorage feedStorage;
@@ -36,7 +32,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByID(Long id) {
+    public User getUserById(Long id) {
         if (userStorage.isNotExistsUser(id)) {
             throw new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", id));
         }
@@ -66,34 +62,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Set<Film> getFilmRecommendations(Long id) {
+    public List<Film> getFilmRecommendations(Long id) {
         if (userStorage.isNotExistsUser(id)) {
             throw new ObjectNotFoundException(String.format("Пользователь не найден: id=%d", id));
         }
-        Set<Film> result = new HashSet<>();
-        Set<Long> allUsersId = getAllUsers().stream().map(User::getId).collect(Collectors.toSet());
 
-        long intersectionAmount = 0;
-        long otherUserInterception = -1;
-        Set<Long> filmsIdRecommended = null;
+        Map<Long, List<Film>> idToLikes = userStorage.findIdToFilms();
+        List<Film> idLikes = idToLikes.get(id);
 
-        for (Long otherUserId : allUsersId) {
-            if (!id.equals(otherUserId)) {
-                Set<Long> likesListByOtherUser = userStorage.findLikeListByUserId(otherUserId);
-                Set<Long> intersectionList = new HashSet<>(userStorage.findLikeListByUserId(id));
-                intersectionList.retainAll(likesListByOtherUser);
-                if (intersectionList.size() > intersectionAmount) {
-                    intersectionAmount = intersectionList.size();
-                    otherUserInterception = otherUserId;
-                    intersectionList.forEach(likesListByOtherUser::remove);
-                    filmsIdRecommended = likesListByOtherUser;
-                }
-            }
-        }
-        if (otherUserInterception != -1 || filmsIdRecommended != null) {
-            filmsIdRecommended.forEach(filmId -> result.add(filmService.getFilmById(filmId)));
-        }
-        return result;
+        return idToLikes.entrySet()
+                .stream()
+                .filter(e -> !Objects.equals(e.getKey(), id))
+                .max(Comparator.comparingInt(e -> e.getValue().stream()
+                        .filter(idLikes::contains)
+                        .collect(Collectors.toSet())
+                        .size()))
+                .map(Map.Entry::getValue)
+                .map(films -> films.stream()
+                        .filter(film -> !idLikes.contains(film))
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
     }
 
     @Override

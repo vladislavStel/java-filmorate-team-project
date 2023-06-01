@@ -78,7 +78,7 @@ class UserControllerTest {
         user = userBuilder.id(1L).build();
         String json = objectMapper.writeValueAsString(user);
 
-        when(userService.getUserByID(1L)).thenReturn(user);
+        when(userService.getUserById(1L)).thenReturn(user);
         mockMvc.perform(get(url + "/1"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -89,11 +89,11 @@ class UserControllerTest {
     @Test
     void handleGetUserByIdWhenNotExistingId_ReturnException() throws Exception {
 
-        when(userService.getUserByID(999L)).thenThrow(new ObjectNotFoundException("Пользователь с id 999 не найден"));
+        when(userService.getUserById(999L)).thenThrow(new ObjectNotFoundException("Пользователь с id 999 не найден"));
         mockMvc.perform(get(url + "/999"))
                 .andDo(print())
                 .andExpect(status().isNotFound());
-        assertThrows(ObjectNotFoundException.class, () -> userService.getUserByID(999L));
+        assertThrows(ObjectNotFoundException.class, () -> userService.getUserById(999L));
 
     }
 

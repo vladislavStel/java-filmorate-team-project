@@ -2,18 +2,21 @@ package ru.yandex.practicum.filmorate.storage.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.Pair;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 @Slf4j
 @Repository
@@ -22,6 +25,7 @@ public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<User> userMapper;
+    private final RowMapper<Film> filmMapper;
 
     @Override
     public List<User> findAllUsers() {
@@ -36,9 +40,14 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public Set<Long> findLikeListByUserId(Long id) {
-        String sql = "SELECT film_id FROM LIKE_LIST WHERE user_id = ?";
-        return new HashSet<>(jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("film_id"), id));
+    public Map<Long, List<Film>> findIdToFilms() {
+        String sql = "SELECT * FROM FILM " +
+                "JOIN LIKE_LIST on FILM.film_id = LIKE_LIST.film_id ";
+        List<Pair<Long, Film>> pairs = jdbcTemplate.query(sql,
+                (rs, rowNum) -> Pair.of(rs.getLong("user_id"), filmMapper.mapRow(rs, rowNum)));
+
+        return pairs.stream()
+                .collect(Collectors.groupingBy(Pair::getFirst, mapping(Pair::getSecond, toList())));
     }
 
     @Override

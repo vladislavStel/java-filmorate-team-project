@@ -63,11 +63,12 @@ public class FilmServiceImpl implements FilmService {
             }
             popularSortedFilmId = filmStorage.findPopularFilmsSortedByYear(count, year);
             if (genreId > 0) {
-                return popularSortedFilmId.stream().map(this::getFilmById)
-                        .filter((film) -> film.getGenres().contains(genreStorage.findGenreById(genreId)))
-                        .collect(Collectors.toList());
+                var genre = genreStorage.findGenreById(genreId);
+                popularSortedFilmId.stream()
+                    .map(this::getFilmById)
+                    .filter((film) -> film.getGenres().contains(genre))
+                    .collect(Collectors.toList());
             }
-
         } else {
             popularSortedFilmId = filmStorage.findPopularFilmsSortedByGenre(genreId);
         }
@@ -133,12 +134,12 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public void addLike(Long filmID, Long userID) {
-        if (filmStorage.isNotExistsFilm(filmID) || userStorage.isNotExistsUser(userID)) {
+    public void addLike(Long filmId, Long userId) {
+        if (filmStorage.isNotExistsFilm(filmId) || userStorage.isNotExistsUser(userId)) {
             throw new ObjectNotFoundException(String.format("Фильм id=%d или/и пользователь id=%d не найден",
-                    filmID, userID));
+                    filmId, userId));
         }
-        likesStorage.saveLike(filmID, userID);
+        likesStorage.saveLike(filmId, userId);
     }
 
     @Override
@@ -152,12 +153,12 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public void removeLike(Long filmID, Long userID) {
-        if (filmStorage.isNotExistsFilm(filmID) || userStorage.isNotExistsUser(userID)) {
+    public void removeLike(Long filmId, Long userId) {
+        if (filmStorage.isNotExistsFilm(filmId) || userStorage.isNotExistsUser(userId)) {
             throw new ObjectNotFoundException(String.format("Фильм id=%d или/и пользователь id=%d не найден",
-                    filmID, userID));
+                    filmId, userId));
         }
-        likesStorage.deleteLike(filmID, userID);
+        likesStorage.deleteLike(filmId, userId);
     }
 
     @Override
