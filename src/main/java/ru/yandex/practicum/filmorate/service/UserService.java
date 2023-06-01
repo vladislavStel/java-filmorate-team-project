@@ -5,13 +5,12 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
-import java.util.Set;
 
 public interface UserService {
 
     List<User> getAllUsers();
 
-    User getUserByID(Long id);
+    User getUserById(Long id);
 
     List<User> getListFriends(Long id);
 
@@ -19,7 +18,7 @@ public interface UserService {
 
     List<Event> getFeed(Long userId);
 
-    Set<Film> getFilmRecommendations(Long id);
+    List<Film> getFilmRecommendations(Long id);
 
     User addUser(User user);
 

@@ -1,9 +1,10 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 public interface UserStorage {
 
@@ -11,9 +12,7 @@ public interface UserStorage {
 
     User findUserById(Long id);
 
-    Set<Long> findLikeListByUserId(Long id);
-
-    Set<Long> findLikeList();
+    Map<Long, List<Film>> findIdToFilms();
 
     User save(User user);
 

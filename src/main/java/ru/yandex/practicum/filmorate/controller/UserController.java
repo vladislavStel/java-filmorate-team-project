@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @AllArgsConstructor
@@ -24,8 +23,8 @@ public class UserController {
     }
 
     @GetMapping("{id}")
-    public User getUserByID(@PathVariable("id") Long id) {
-        return userService.getUserByID(id);
+    public User getUserById(@PathVariable("id") Long id) {
+        return userService.getUserById(id);
     }
 
     @GetMapping("/{id}/friends")
@@ -44,7 +43,7 @@ public class UserController {
     }
 
     @GetMapping("{id}/recommendations")
-    public Set<Film> getFilmsRecommendations(@PathVariable Long id) {
+    public List<Film> getFilmsRecommendations(@PathVariable Long id) {
         return userService.getFilmRecommendations(id);
     }
 

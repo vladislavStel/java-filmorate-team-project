@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.*;
 
@@ -64,11 +63,10 @@ public class FilmServiceImpl implements FilmService {
             }
             popularSortedFilmId = filmStorage.findPopularFilmsSortedByYear(count, year);
             if (genreId > 0) {
-                Genre genreById = genreStorage.findGenreById(genreId);
-
+                var genre = genreStorage.findGenreById(genreId);
                 popularSortedFilmId.stream()
                     .map(this::getFilmById)
-                    .filter((film) -> film.getGenres().contains(genreById))
+                    .filter((film) -> film.getGenres().contains(genre))
                     .collect(Collectors.toList());
             }
         } else {
@@ -136,12 +134,12 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public void addLike(Long filmID, Long userID) {
-        if (filmStorage.isNotExistsFilm(filmID) || userStorage.isNotExistsUser(userID)) {
+    public void addLike(Long filmId, Long userId) {
+        if (filmStorage.isNotExistsFilm(filmId) || userStorage.isNotExistsUser(userId)) {
             throw new ObjectNotFoundException(String.format("Фильм id=%d или/и пользователь id=%d не найден",
-                    filmID, userID));
+                    filmId, userId));
         }
-        likesStorage.saveLike(filmID, userID);
+        likesStorage.saveLike(filmId, userId);
     }
 
     @Override
@@ -155,12 +153,12 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public void removeLike(Long filmID, Long userID) {
-        if (filmStorage.isNotExistsFilm(filmID) || userStorage.isNotExistsUser(userID)) {
+    public void removeLike(Long filmId, Long userId) {
+        if (filmStorage.isNotExistsFilm(filmId) || userStorage.isNotExistsUser(userId)) {
             throw new ObjectNotFoundException(String.format("Фильм id=%d или/и пользователь id=%d не найден",
-                    filmID, userID));
+                    filmId, userId));
         }
-        likesStorage.deleteLike(filmID, userID);
+        likesStorage.deleteLike(filmId, userId);
     }
 
     @Override
